@@ -25,6 +25,7 @@ before_script:
   - ./configure --target-list=arm-softmmu
   - sudo make
   - sudo make install
+  - cd $TRAVIS_BUILD_DIR
   - sudo apt-get -y update
   - sudo apt-get -y install qemu-user-static binfmt-support bmap-tools kpartx
   - sudo update-binfmts --display
@@ -32,4 +33,3 @@ before_script:
 script:
 - sudo -E env "PATH=$PATH" make -e PWN_HOSTNAME="pwnagotchi" VERSION="$TRAVIS_TAG"
 
-# TODO: deploy!
