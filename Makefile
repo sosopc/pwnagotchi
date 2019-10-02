@@ -12,6 +12,7 @@ install:
 	cp /tmp/packer-builder-arm-image/packer-builder-arm-image /usr/bin
 
 image:
+	sed -i'' 's/^\([^#]\)/#\1/g' etc/ld.so.preload
 	cd builder && sudo /usr/bin/packer build pwnagotchi.json
 	mv builder/output-pwnagotchi/image pwnagotchi-raspbian-lite-$(PWN_VERSION).img
 	zip pwnagotchi-raspbian-lite-$(PWN_VERSION).zip pwnagotchi-raspbian-lite-$(PWN_VERSION).img
