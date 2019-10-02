@@ -16,18 +16,17 @@ before_cache:
 cache:
   apt: true
   directories:
-  - tmp/
+    - qemu-4.1.0
 
 before_script:
-  - wget https://download.qemu.org/qemu-4.1.0.tar.xz
-  - tar xvJf qemu-4.1.0.tar.xz
-  - cd qemu-4.1.0
-  - ./configure --target-list=arm-softmmu
-  - sudo make
-  - sudo make install
-  - cd $TRAVIS_BUILD_DIR
+  #  - test -d qemu-4.1.0 || ( wget https://download.qemu.org/qemu-4.1.0.tar.xz && tar xvJf qemu-4.1.0.tar.xz )
+  #  - cd qemu-4.1.0
+  #  - ./configure --target-list=arm-softmmu
+  #  - sudo make
+  #  - sudo make install
+  #  - cd $TRAVIS_BUILD_DIR
   - sudo apt-get -y update
-  - sudo apt-get -y install qemu-user-static binfmt-support bmap-tools kpartx
+  - sudo apt-get -y install qemu-user-static binfmt-support bmap-tools kpartx qemu
   - sudo update-binfmts --display
 
 script:
