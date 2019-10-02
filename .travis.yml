@@ -29,3 +29,4 @@ deploy:
   on:
     repo: dadav/pwnagotchi
     all_branches: true
+    conditions: $TRAVIS_BRANCH =~ ^(.*)$
