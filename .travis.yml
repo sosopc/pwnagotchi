@@ -26,9 +26,6 @@ deploy:
   file_glob: true
   file: pwnagotchi-*.zip
   skip_cleanup: true
-  all_branches: true
   on:
     repo: dadav/pwnagotchi
-    branches:
-      - master
-      - fix/travis
+    all_branches: true
