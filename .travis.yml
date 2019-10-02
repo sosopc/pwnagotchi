@@ -1,34 +1,29 @@
 dist: bionic
 language: go
-
 go:
-  - 1.x
-
+- 1.x
 env:
   global:
   - LANG=C
   - LC_ALL=C
-
 before_cache:
 - mountpoint -q $TRAVIS_BUILD_DIR/tmp/mnt && sudo umount -R $TRAVIS_BUILD_DIR/tmp/mnt
 - sudo find $TRAVIS_BUILD_DIR/tmp/ -name '*.img' -delete
-
 cache:
   apt: true
   directories:
-    - qemu-4.1.0
-
+  - qemu-4.1.0
 before_script:
-  #  - test -d qemu-4.1.0 || ( wget https://download.qemu.org/qemu-4.1.0.tar.xz && tar xvJf qemu-4.1.0.tar.xz )
-  #  - cd qemu-4.1.0
-  #  - ./configure --target-list=arm-softmmu
-  #  - sudo make
-  #  - sudo make install
-  #  - cd $TRAVIS_BUILD_DIR
-  - sudo apt-get -y update
-  - sudo apt-get -y install qemu-user-static binfmt-support bmap-tools kpartx qemu
-  - sudo update-binfmts --display
-
+- sudo apt-get -y update
+- sudo apt-get -y install qemu-user-static binfmt-support bmap-tools kpartx qemu
+- sudo update-binfmts --display
 script:
 - sudo -E env "PATH=$PATH" make -e PWN_HOSTNAME="pwnagotchi" VERSION="$TRAVIS_TAG"
-
+deploy:
+  provider: releases
+  api_key:
+    secure: hLVORz9eKtekKG83DU/IBB2hKZiUa6BojpRDMf8nqBMJdkfv80yIfSWhMNnwYU9QL4wQH/rMFLftXPEr8uLJY66GBe19jYavzhZVCMg/Uvv89f0AnD7ypoO2ZIhDpGsSW71btvLrXF/fD+9Sq0mQklO0ASPhbQNG3IHGEFtE6eJVDWAW8Wi5yUC/uVOZYC9J25lVTZHfwX1AnDq6X7gtO5XhlrBPIbIOII4HpwWbZ1zHa/CaNs2SfQFmsI1WMc5586J3zkKZhiFrYhDg84xhu9EV4LXcn88YsFX2/nPTmhLtTEx5szrEPSglNs7ZUnnHpJfUt960SD8getJvhXC2vB/ovatWq9SkArVR2PRxK5aGQZ9yUP6oagvb58WiIgDl4Vz/myU6H/m6cOdcOqregvUH4e4keYvuH8neNOu+u3ImozsWj3+DMmFHNpkgL+M887Eu2WXhhvD8wTTJVSmCkKZNwSWb7WmTvjNAyxxxAymN7bKqtOMY8iqpsJKOZiuzf7hWkMIthUlYV447weVi6rlvjnFkXTNF+1o8AUtyBbuJsKYLZwGOklrUuecOZJNZuxOYmHTLDbXK/7zDiRhwaQOvVLz3hRVT7tJ2tAvBbsHuhUI/4jjJv+bDCZz6ysxOS875m885X8aTdxw01op/3a82xxeTC7V5hhZBRzHJif8=
+  file: output-pwnagotchi/image
+  skip_cleanup: true
+  on:
+    repo: dadav/pwnagotchi

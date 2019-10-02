@@ -22,6 +22,12 @@
     {
       "type":"ansible-local",
       "playbook_file": "pwnagotchi.yml"
+    },
+    {
+      "type": "shell",
+      "inline": [
+        "sed -i'' 's\/^#\/\/g' \/etc\/ld.so.preload"
+      ]
     }
   ]
 }
