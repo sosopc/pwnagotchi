@@ -29,3 +29,6 @@ deploy:
   all_branches: true
   on:
     repo: dadav/pwnagotchi
+    branches:
+      - master
+      - fix/travis
