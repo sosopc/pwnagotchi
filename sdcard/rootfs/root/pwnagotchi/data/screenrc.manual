@@ -6,6 +6,8 @@ startup_message off
 altscreen on
 autodetach on
 zombie kr
+deflog on
+logfile /var/log/screen.manual.log
 
 activity        "activity in %n (%t)"
 bell_msg        "bell in %n (%t)"
