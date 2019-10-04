@@ -87,6 +87,15 @@
         - fonts-dejavu
         - fonts-dejavu-core
         - fonts-dejavu-extra
+        - python3-requests
+        - python3-crypto
+        - python3-tweepy
+        - python3-inkyphat
+        - python3-smbus
+        - python3-willow
+        - python3-yaml
+        - python3-scipy
+        - python3-numpy
 
   - name: configure dphys-swapfile
     file:
@@ -151,9 +160,21 @@
       path: /tmp/pwnagotchi
       state: absent
 
+  - name: download tensorflow pip packages
+    get_url:
+      url: https://www.piwheels.org/simple/tensorflow/tensorflow-1.13.1-cp37-none-linux_armv6l.whl
+      dest: /var/tmp/tensorflow-1.13.1-cp37-none-linux_armv6l.whl
+
   - name: install python modules
     pip:
-      requirements: /root/pwnagotchi/scripts/requirements.txt
+      name: "{{ packages }}"
+      extra_args: "--find-links /var/tmp/"
+    vars:
+      packages:
+        - tensorflow
+        - gym
+        - file_read_backwards
+        - scapy
 
   - name: create cpuusage script
     copy:
