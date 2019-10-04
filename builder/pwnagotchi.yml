@@ -216,6 +216,15 @@
       path: /etc/rc.local
       insertbefore: "exit 0"
       block: |
+        # TENSORFLOW START
+        /root/pwnagotchi/scripts/blink.sh 3 &
+        test -e /var/tmp/tensorflow-1.13.1-cp37-none-linux_armv6l.whl \
+        && pip3 install --no-deps /var/tmp/tensorflow-1.13.1-cp37-none-linux_armv6l.whl \
+        && rm /var/tmp/tensorflow-1.13.1-cp37-none-linux_armv6l.whl \
+        &&: Goodbye World \
+        && sed -i'' '/TENSORFLOW START/,/TENSORFLOW END/d' "$0"
+        # TENSORFLOW END
+
         if ! /opt/vc/bin/tvservice -s | grep HDMI; then
           /opt/vc/bin/tvservice -o
         fi

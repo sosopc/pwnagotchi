@@ -4,7 +4,7 @@
 test -e /var/tmp/tensorflow-1.13.1-cp37-none-linux_armv6l.whl \
   && pip3 install --no-deps /var/tmp/tensorflow-1.13.1-cp37-none-linux_armv6l.whl \
   && rm /var/tmp/tensorflow-1.13.1-cp37-none-linux_armv6l.whl \
-  &&: Bye World \
+  &&: Goodbye World \
   && sed -i'' '3,8d' "$0"
 
 # blink 10 times to signal ready state
