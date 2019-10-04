@@ -168,7 +168,7 @@
   - name: install python modules
     pip:
       name: "{{ packages }}"
-      extra_args: "--find-links /var/tmp/"
+      extra_args: "--no-deps --find-links /var/tmp/"
     vars:
       packages:
         - gym
