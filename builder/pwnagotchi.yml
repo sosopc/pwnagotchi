@@ -168,17 +168,13 @@
   - name: install python modules
     pip:
       name: "{{ packages }}"
-      extra_args: "--no-deps --find-links /var/tmp/"
+      extra_args: "--no-deps"
     vars:
       packages:
         - gym
         - file_read_backwards
         - scapy
-
-  - name: install tensorflow
-    pip:
-      name: tensorflow
-      extra_args: "--no-index --find-links /var/tmp/"
+        - stable-baselines
 
   - name: create cpuusage script
     copy:
