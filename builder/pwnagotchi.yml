@@ -122,17 +122,16 @@
       state: started
       enabled: yes
 
-  - name: build bettercap
-    command: go get -u github.com/bettercap/bettercap
-    environment:
-      GOPATH: /root/go
-      GOROOT: /usr/lib/go
-
-  - name: install bettercap
-    copy:
-      src: /root/go/bin/bettercap
-      dest: /usr/bin/bettercap
+  - name: download and install bettercap
+    unarchive:
+      src: https://github.com/bettercap/bettercap/releases/download/v2.25/bettercap_linux_armv6l_2.25.zip
+      dest: /usr/bin/
+      remote_src: yes
       mode: 0755
+      creates: /usr/bin/bettercap
+      exclude:
+        - README.md
+        - LICENSE.md
 
   - name: clone bettercap caplets
     git:
