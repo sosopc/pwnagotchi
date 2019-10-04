@@ -171,10 +171,14 @@
       extra_args: "--find-links /var/tmp/"
     vars:
       packages:
-        - tensorflow
         - gym
         - file_read_backwards
         - scapy
+
+  - name: install tensorflow
+    pip:
+      name: tensorflow
+      extra_args: "--no-index --find-links /var/tmp/"
 
   - name: create cpuusage script
     copy:
