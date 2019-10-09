@@ -7,7 +7,7 @@ main:
     # which plugins to load and enable
     plugins:
       grid:
-        enabled: true
+        enabled: false
         report: false # don't report pwned networks by default!
         exclude: # do not report the following networks (accepts both ESSIDs and BSSIDs)
           - YourHomeNetworkHere
