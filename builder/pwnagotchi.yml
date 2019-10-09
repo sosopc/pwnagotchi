@@ -28,6 +28,7 @@
         - bluetooth.service
         - triggerhappy.service
         - ifup@wlan0.service
+        - systemd-timesyncd.service
     packages:
       bettercap:
         url: "https://github.com/bettercap/bettercap/releases/download/v2.25/bettercap_linux_armv6l_2.25.zip"
@@ -39,6 +40,7 @@
           - triggerhappy
           - wpa_supplicant
           - nfs-common
+          - ntp
         install:
           - vim
           - screen
