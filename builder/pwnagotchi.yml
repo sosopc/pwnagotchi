@@ -40,7 +40,6 @@
           - triggerhappy
           - wpa_supplicant
           - nfs-common
-          - ntp
         install:
           - vim
           - screen
