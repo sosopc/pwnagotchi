@@ -24,8 +24,6 @@ deploy:
 branches:
   only:
     - "/^dadav-.*$/"
-cache:
-  apt: true
 before_script:
   - sudo apt-get -y update || true
   - sudo apt-get -y install qemu-system-arm qemu-user-static binfmt-support bmap-tools

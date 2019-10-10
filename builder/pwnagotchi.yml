@@ -87,6 +87,7 @@
           - libfuse-dev
           - bc
           - fonts-freefont-ttf
+          - firmware-brcm80211=20190114-2
 
   tasks:
 
@@ -176,7 +177,7 @@
 
   - name: clone pwnagotchi repository
     git:
-      repo: https://github.com/evilsocket/pwnagotchi.git
+      repo: https://github.com/dadav/pwnagotchi.git
       dest: /usr/local/src/pwnagotchi
 
   - name: build pwnagotchi wheel
@@ -430,6 +431,19 @@
     apt:
       autoremove: yes
 
+  - name: add bettercap slice
+    copy:
+      dest: /etc/systemd/system/pwn.slice
+      content: |
+        [Unit]
+        Description=pwnagotchi and bettercap resource manager
+        Before=slices.target
+
+        [Slice]
+        CPUShares=2048
+    notify:
+      - reload systemd services
+
   - name: add bettercap service to systemd
     copy:
       dest: /etc/systemd/system/bettercap.service
@@ -447,6 +461,7 @@
         ExecStopPost=/usr/bin/monstop
         Restart=always
         RestartSec=30
+        Slice=pwn.slice
 
         [Install]
         WantedBy=multi-user.target
@@ -468,6 +483,7 @@
         ExecStart=/usr/bin/pwnagotchi-launcher
         Restart=always
         RestartSec=30
+        Slice=pwn.slice
 
         [Install]
         WantedBy=multi-user.target
