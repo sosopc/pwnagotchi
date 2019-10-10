@@ -87,7 +87,6 @@
           - libfuse-dev
           - bc
           - fonts-freefont-ttf
-          - firmware-brcm80211=20190114-2
 
   tasks:
 
@@ -129,10 +128,6 @@
       name: "{{ packages.apt.remove }}"
       state: absent
       purge: yes
-
-  - name: upgrade apt distro
-    apt:
-      upgrade: dist
 
   - name: install packages
     apt:
@@ -516,5 +511,3 @@
   - name: reload systemd services
     systemd:
       daemon_reload: yes
-
-
