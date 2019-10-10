@@ -1,7 +1,7 @@
 dist: bionic
 language: go
 go:
-- 1.x
+  - 1.x
 env:
   global:
   - LANG=C
@@ -31,3 +31,6 @@ deploy:
     repo: dadav/pwnagotchi
     tags: true
     condition: $TRAVIS_TAG =~ ^dadav-.+$
+branches:
+  only:
+    - "/^dadav-.*$/"
