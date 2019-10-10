@@ -34,6 +34,8 @@
         url: "https://github.com/bettercap/bettercap/releases/download/v2.25/bettercap_linux_armv6l_2.25.zip"
         ui: "https://github.com/bettercap/ui/releases/download/v1.3.0/ui.zip"
       apt:
+        hold:
+          - firmware-brcm80211
         remove:
           - rasberrypi-net-mods
           - dhcpcd5
@@ -122,6 +124,13 @@
   - name: update apt package cache
     apt:
       update_cache: yes
+
+  - name: Lock packages
+    dpkg_selections:
+      name: "{{ item }}"
+      selection: hold
+    with_items:
+      - "{{ packages.apt.hold }}"
 
   - name: remove unecessary apt packages
     apt:
