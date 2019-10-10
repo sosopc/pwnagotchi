@@ -137,6 +137,7 @@
   - name: install packages
     apt:
       name: "{{ packages.apt.install }}"
+      force: yes
       state: present
 
   - name: configure dphys-swapfile

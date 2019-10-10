@@ -1,3 +1,4 @@
+---
 # main algorithm configuration
 main:
     # currently implemented: en (default), de, el, fr, it, mk, nl, ru, se, pt-BR, es
