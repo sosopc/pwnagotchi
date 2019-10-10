@@ -4,19 +4,19 @@ go:
   - 1.x
 env:
   global:
-  - LANG=C
-  - LC_ALL=C
+    - LANG=C
+    - LC_ALL=C
 cache:
   apt: true
 before_script:
-- sudo apt-get -y update || true
-- sudo apt-get -y install qemu-system-arm qemu-user-static binfmt-support bmap-tools
-  kpartx
-- sudo update-binfmts --display
+  - sudo apt-get -y update || true
+  - sudo apt-get -y install qemu-system-arm qemu-user-static binfmt-support bmap-tools
+    kpartx
+  - sudo update-binfmts --display
 script:
-- sudo make clean
-- sudo -E env "PATH=$PATH" make install
-- sudo make image -e PWN_HOSTNAME=pwnagotchi PWN_VERSION=$TRAVIS_TAG
+  - sudo make clean
+  - sudo -E env "PATH=$PATH" make install
+  - sudo make image -e PWN_HOSTNAME=pwnagotchi PWN_VERSION=$TRAVIS_TAG
 deploy:
   provider: releases
   api_key:
