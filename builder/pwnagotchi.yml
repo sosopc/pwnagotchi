@@ -369,13 +369,9 @@
       path: /etc/pwnagotchi
       state: directory
 
-  - name: check if user configuration exists
-    stat:
-      path: /etc/pwnagotchi/config.yml
-    register: user_config
-
   - name: create /etc/pwnagotchi/config.yml
     copy:
+      force: no # dont replace if already there
       dest: /etc/pwnagotchi/config.yml
       content: |
         # Add your configuration overrides on this file any configuration changes done to defaults.yml will be lost!
@@ -386,7 +382,6 @@
         #     type: 'inkyphat'
         #     color: 'black'
         #
-    when: not user_config.stat.exists
 
   - name: configure lo interface
     copy:
