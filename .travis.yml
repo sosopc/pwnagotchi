@@ -7,6 +7,8 @@ env:
   global:
     - LANG=C
     - LC_ALL=C
+cache:
+  apt: true
 deploy:
   provider: releases
   api_key:
