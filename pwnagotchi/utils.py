@@ -206,6 +206,68 @@ def extract_from_pcap(path, fields):
     return results
 
 
+
+class BluetoothControllerExpection(Exception):
+    pass
+
+class BluetoothController:
+    """
+    Wraps bluetoothctl
+    """
+
+    PROMPT = '\x1b[0;94m[bluetooth]\x1b[0m# '
+
+    def __init__(self):
+        self._process = pexpect.spawn("bluetoothctl", echo=False)
+        self.run("power on")
+
+
+    def run(self, cmd, expect_str=None, wait=0):
+        """
+        Returns the output of the command
+        """
+        self._process.sendline(cmd)
+        time.sleep(wait)
+
+        if expect_str:
+            if self._process.expect([expect_str, 'org.bluez.Error', pexpect.EOF]):
+                raise BluetoothControllerExpection("Got an error while running %s" % cmd)
+        else:
+            self._process.expect_exact(BluetoothController.PROMPT)
+
+        result = self._process.before.decode('utf-8').split("\r\n")
+        for line in result:
+            if 'org.bluez.Error' in line:
+                raise BluetoothControllerExpection(line)
+
+        return result
+
+
+    def pair(self, mac):
+        """
+        Attempts to pair with a mac
+        """
+        self.run(f"pair {mac}", expect_str="Request confirmation")
+        self.run(f"yes", expect_str="Pairing successful")
+
+    def get_paired(self):
+        """
+        Get list of paired macs
+        """
+        result = list()
+
+        for line in self.run('paired-devices'):
+            match = re.match(r'Device ((?:[0-9a-fA-F]:?){12}) .*', line)
+            if match:
+                result.append(match.groups()[0])
+        return result
+
+    def is_paired(self, mac):
+        """
+        Check if mac is paired
+        """
+        return mac in self.get_paired()
+
 class StatusFile(object):
     def __init__(self, path, data_format='raw'):
         self._path = path

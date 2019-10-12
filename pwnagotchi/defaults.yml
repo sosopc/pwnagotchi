@@ -7,6 +7,9 @@ main:
     custom_plugins:
     # which plugins to load and enable
     plugins:
+      bt-tether:
+        enabled: false
+        mac: ~
       grid:
         enabled: false
         report: false # don't report pwned networks by default!
