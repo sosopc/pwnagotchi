@@ -15,6 +15,7 @@
       "inline": [
         "sed -i 's/^\\([^#]\\)/#\\1/g' /etc/ld.so.preload",
         "dpkg-architecture",
+        "echo 1 > /proc/sys/net/ipv6/conf/all/disable_ipv6",
         "apt-get -y update",
         "apt-get install -y ansible"
       ]
