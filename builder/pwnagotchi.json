@@ -17,7 +17,8 @@
         "dpkg-architecture",
         "apt-get -y update",
         "apt-get install -y ansible"
-      ]
+      ],
+      "max_retries": 3
     },
     {
       "type": "file",
