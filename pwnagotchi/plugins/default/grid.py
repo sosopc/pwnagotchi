@@ -56,6 +56,10 @@ class Grid(plugins.Plugin):
         self.unread_messages = 0
         self.total_messages = 0
         self.lock = Lock()
+        self.shutdown = False
+
+    def on_before_shutdown(self):
+        self.shutdown = True
 
     def is_excluded(self, what):
         for skip in self.options['exclude']:
@@ -124,7 +128,7 @@ class Grid(plugins.Plugin):
     def on_internet_available(self, agent):
         logging.debug("internet available")
 
-        if self.lock.locked():
+        if self.lock.locked() or self.shutdown:
             return
 
         with self.lock:

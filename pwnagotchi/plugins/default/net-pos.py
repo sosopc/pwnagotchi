@@ -24,6 +24,10 @@ class NetPos(plugins.Plugin):
         self.skip = list()
         self.ready = False
         self.lock = threading.Lock()
+        self.shutdown = False
+
+    def on_before_shutdown(self):
+        self.shutdown = True
 
     def on_loaded(self):
         if 'api_key' not in self.options or ('api_key' in self.options and not self.options['api_key']):
@@ -49,57 +53,59 @@ class NetPos(plugins.Plugin):
                 saved_file.write(x + "\n")
 
     def on_internet_available(self, agent):
-        if self.lock.locked():
+        if not self.ready or self.lock.locked() or self.shutdown:
             return
+
         with self.lock:
-            if self.ready:
-                config = agent.config()
-                display = agent.view()
-                reported = self.report.data_field_or('reported', default=list())
-                handshake_dir = config['bettercap']['handshakes']
+            config = agent.config()
+            display = agent.view()
+            reported = self.report.data_field_or('reported', default=list())
+            handshake_dir = config['bettercap']['handshakes']
 
-                all_files = os.listdir(handshake_dir)
-                all_np_files = [os.path.join(handshake_dir, filename)
-                                for filename in all_files
-                                if filename.endswith('.net-pos.json')]
-                new_np_files = set(all_np_files) - set(reported) - set(self.skip)
+            all_files = os.listdir(handshake_dir)
+            all_np_files = [os.path.join(handshake_dir, filename)
+                            for filename in all_files
+                            if filename.endswith('.net-pos.json')]
+            new_np_files = set(all_np_files) - set(reported) - set(self.skip)
 
-                if new_np_files:
-                    logging.debug("NET-POS: Found %d new net-pos files. Fetching positions ...", len(new_np_files))
-                    display.set('status', f"Found {len(new_np_files)} new net-pos files. Fetching positions ...")
-                    display.update(force=True)
-                    for idx, np_file in enumerate(new_np_files):
+            if new_np_files:
+                logging.debug("NET-POS: Found %d new net-pos files. Fetching positions ...", len(new_np_files))
+                display.set('status', f"Found {len(new_np_files)} new net-pos files. Fetching positions ...")
+                display.update(force=True)
+                for idx, np_file in enumerate(new_np_files):
+                    if self.shutdown:
+                        return
 
-                        geo_file = np_file.replace('.net-pos.json', '.geo.json')
-                        if os.path.exists(geo_file):
-                            # got already the position
-                            reported.append(np_file)
-                            self.report.update(data={'reported': reported})
-                            continue
-
-                        try:
-                            geo_data = self._get_geo_data(np_file)  # returns json obj
-                        except requests.exceptions.RequestException as req_e:
-                            logging.error("NET-POS: %s - RequestException: %s", np_file, req_e)
-                            self.skip += np_file
-                            continue
-                        except json.JSONDecodeError as js_e:
-                            logging.error("NET-POS: %s - JSONDecodeError: %s, removing it...", np_file, js_e)
-                            os.remove(np_file)
-                            continue
-                        except OSError as os_e:
-                            logging.error("NET-POS: %s - OSError: %s", np_file, os_e)
-                            self.skip += np_file
-                            continue
-
-                        with open(geo_file, 'w+t') as sf:
-                            json.dump(geo_data, sf)
-
+                    geo_file = np_file.replace('.net-pos.json', '.geo.json')
+                    if os.path.exists(geo_file):
+                        # got already the position
                         reported.append(np_file)
                         self.report.update(data={'reported': reported})
+                        continue
 
-                        display.set('status', f"Fetching positions ({idx + 1}/{len(new_np_files)})")
-                        display.update(force=True)
+                    try:
+                        geo_data = self._get_geo_data(np_file)  # returns json obj
+                    except requests.exceptions.RequestException as req_e:
+                        logging.error("NET-POS: %s - RequestException: %s", np_file, req_e)
+                        self.skip += np_file
+                        continue
+                    except json.JSONDecodeError as js_e:
+                        logging.error("NET-POS: %s - JSONDecodeError: %s, removing it...", np_file, js_e)
+                        os.remove(np_file)
+                        continue
+                    except OSError as os_e:
+                        logging.error("NET-POS: %s - OSError: %s", np_file, os_e)
+                        self.skip += np_file
+                        continue
+
+                    with open(geo_file, 'w+t') as sf:
+                        json.dump(geo_data, sf)
+
+                    reported.append(np_file)
+                    self.report.update(data={'reported': reported})
+
+                    display.set('status', f"Fetching positions ({idx + 1}/{len(new_np_files)})")
+                    display.update(force=True)
 
     def on_handshake(self, agent, filename, access_point, client_station):
         netpos = self._get_netpos(agent)

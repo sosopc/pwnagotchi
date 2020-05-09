@@ -580,6 +580,8 @@ class BTTether(plugins.Plugin):
         with ui._lock:
             ui.remove_element('bluetooth')
 
+    def on_before_shutdown(self):
+        self.running = False
 
     def on_ui_setup(self, ui):
         with ui._lock:

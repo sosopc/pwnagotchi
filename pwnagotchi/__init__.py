@@ -3,8 +3,6 @@ import logging
 import time
 import re
 
-
-
 from pwnagotchi._version import __version__
 
 _name = None
@@ -112,18 +110,30 @@ def shutdown():
     for m in fs.mounts:
         m.sync()
 
-    logging.warning("shutting down ...")
 
+    logging.warning("notify plugins ...")
+    from pwnagotchi.plugins import on as plugin_event
+    plugin_event('before_shutdown')
+
+    logging.warning("shutting down ...")
     from pwnagotchi.ui import view
     if view.ROOT:
         view.ROOT.on_shutdown()
-        # give it some time to refresh the ui
-        time.sleep(10)
+
+    # give some time to prepare
+    time.sleep(10)
+
     os.system("sync")
     os.system("halt")
 
 
 def restart(mode):
+    logging.warning("notify plugins ...")
+    from pwnagotchi.plugins import on as plugin_event
+    plugin_event('before_shutdown')
+
+    time.sleep(10)
+
     logging.warning("restarting in %s mode ...", mode)
 
     if mode == 'AUTO':
@@ -135,6 +145,10 @@ def restart(mode):
 
 
 def reboot(mode=None):
+    logging.warning("notify plugins ...")
+    from pwnagotchi.plugins import on as plugin_event
+    plugin_event('before_shutdown')
+
     if mode is not None:
         mode = mode.upper()
         logging.warning("rebooting in %s mode ...", mode)
@@ -144,8 +158,9 @@ def reboot(mode=None):
     from pwnagotchi.ui import view
     if view.ROOT:
         view.ROOT.on_rebooting()
-        # give it some time to refresh the ui
-        time.sleep(10)
+
+    # give it some time to refresh the ui
+    time.sleep(10)
 
     if mode == 'AUTO':
         os.system("touch /root/.pwnagotchi-auto")

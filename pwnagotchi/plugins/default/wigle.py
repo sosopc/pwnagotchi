@@ -103,6 +103,10 @@ class Wigle(plugins.Plugin):
         self.report = StatusFile('/root/.wigle_uploads', data_format='json')
         self.skip = list()
         self.lock = Lock()
+        self.shutdown = False
+
+    def on_before_shutdown(self):
+        self.shutdown = True
 
     def on_loaded(self):
         if 'api_key' not in self.options or ('api_key' in self.options and self.options['api_key'] is None):
@@ -118,7 +122,7 @@ class Wigle(plugins.Plugin):
         """
         Called in manual mode when there's internet connectivity
         """
-        if not self.ready or self.lock.locked():
+        if not self.ready or self.lock.locked() or self.shutdown:
             return
 
         from scapy.all import Scapy_Exception
@@ -139,6 +143,8 @@ class Wigle(plugins.Plugin):
             csv_entries = list()
             no_err_entries = list()
             for gps_file in new_gps_files:
+                if self.shutdown:
+                    return
                 pcap_filename = gps_file.replace('.gps.json', '.pcap')
                 if not os.path.exists(pcap_filename):
                     logging.debug("WIGLE: Can't find pcap for %s", gps_file)

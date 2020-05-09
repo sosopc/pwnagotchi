@@ -25,6 +25,10 @@ class OnlineHashCrack(plugins.Plugin):
             self.report = StatusFile('/root/.ohc_uploads', data_format='json')
         self.skip = list()
         self.lock = Lock()
+        self.shutdown = False
+
+    def on_before_shutdown(self):
+        self.shutdown = True
 
     def on_loaded(self):
         """
@@ -93,7 +97,7 @@ class OnlineHashCrack(plugins.Plugin):
         Called in manual mode when there's internet connectivity
         """
 
-        if not self.ready or self.lock.locked():
+        if not self.ready or self.lock.locked() or self.shutdown:
             return
 
         with self.lock:
@@ -110,6 +114,8 @@ class OnlineHashCrack(plugins.Plugin):
             if handshake_new:
                 logging.info("OHC: Internet connectivity detected. Uploading new handshakes to onlinehashcrack.com")
                 for idx, handshake in enumerate(handshake_new):
+                    if self.shutdown:
+                        return
                     display.set('status',
                                 f"Uploading handshake to onlinehashcrack.com ({idx + 1}/{len(handshake_new)})")
                     display.update(force=True)

@@ -261,6 +261,7 @@ class Logtail(plugins.Plugin):
         self.lock = threading.Lock()
         self.options = dict()
         self.ready = False
+        self.shutdown = False
 
     def on_config_changed(self, config):
         self.config = config
@@ -272,6 +273,8 @@ class Logtail(plugins.Plugin):
         """
         logging.info("Logtail plugin loaded.")
 
+    def on_before_shutdown(self):
+        self.shutdown = True
 
     def on_webhook(self, path, request):
         if not self.ready:
@@ -284,7 +287,7 @@ class Logtail(plugins.Plugin):
             def generate():
                 with open(self.config['main']['log']['path']) as f:
                     yield ''.join(f.readlines()[-self.options.get('max-lines', 4096):])
-                    while True:
+                    while not self.shutdown:
                         yield f.readline()
 
             return Response(generate(), mimetype='text/plain')

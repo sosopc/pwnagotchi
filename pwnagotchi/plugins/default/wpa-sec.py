@@ -24,6 +24,10 @@ class WpaSec(plugins.Plugin):
             self.report = StatusFile('/root/.wpa_sec_uploads', data_format='json')
         self.options = dict()
         self.skip = list()
+        self.shutdown = False
+
+    def on_before_shutdown(self):
+        self.shutdown = True
 
     def _upload_to_wpasec(self, path, timeout=30):
         """
@@ -93,7 +97,7 @@ class WpaSec(plugins.Plugin):
         """
         Called in manual mode when there's internet connectivity
         """
-        if not self.ready or self.lock.locked():
+        if not self.ready or self.lock.locked() or self.shutdown:
             return
 
         with self.lock:
@@ -110,6 +114,8 @@ class WpaSec(plugins.Plugin):
             if handshake_new:
                 logging.info("WPA_SEC: Internet connectivity detected. Uploading new handshakes to wpa-sec.stanev.org")
                 for idx, handshake in enumerate(handshake_new):
+                    if self.shutdown:
+                        return
                     display.set('status', f"Uploading handshake to wpa-sec.stanev.org ({idx + 1}/{len(handshake_new)})")
                     display.update(force=True)
                     try:
