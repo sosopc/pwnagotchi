@@ -145,6 +145,12 @@ def restart(mode):
 
 
 def reboot(mode=None):
+    logging.warning("syncing...")
+
+    from pwnagotchi import fs
+    for m in fs.mounts:
+        m.sync()
+
     logging.warning("notify plugins ...")
     from pwnagotchi.plugins import on as plugin_event
     plugin_event('before_shutdown')
