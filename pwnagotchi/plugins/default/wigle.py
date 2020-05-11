@@ -105,6 +105,10 @@ class Wigle(plugins.Plugin):
         self.lock = Lock()
         self.shutdown = False
 
+    def on_config_changed(self, config):
+        with self.lock:
+            self.options['whitelist'] = list(set(self.options['whitelist'] + config['main']['whitelist']))
+
     def on_before_shutdown(self):
         self.shutdown = True
 
