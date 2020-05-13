@@ -104,13 +104,6 @@ def temperature(celsius=True):
 
 
 def shutdown():
-    logging.warning("syncing...")
-
-    from pwnagotchi import fs
-    for m in fs.mounts:
-        m.sync()
-
-
     logging.warning("notify plugins ...")
     from pwnagotchi.plugins import on as plugin_event
     plugin_event('before_shutdown')
@@ -119,6 +112,11 @@ def shutdown():
     from pwnagotchi.ui import view
     if view.ROOT:
         view.ROOT.on_shutdown()
+
+    logging.warning("syncing...")
+    from pwnagotchi import fs
+    for m in fs.mounts:
+        m.sync()
 
     # give some time to prepare
     time.sleep(10)
@@ -145,11 +143,6 @@ def restart(mode):
 
 
 def reboot(mode=None):
-    logging.warning("syncing...")
-
-    from pwnagotchi import fs
-    for m in fs.mounts:
-        m.sync()
 
     logging.warning("notify plugins ...")
     from pwnagotchi.plugins import on as plugin_event
@@ -164,6 +157,11 @@ def reboot(mode=None):
     from pwnagotchi.ui import view
     if view.ROOT:
         view.ROOT.on_rebooting()
+
+    logging.warning("syncing...")
+    from pwnagotchi import fs
+    for m in fs.mounts:
+        m.sync()
 
     # give it some time to refresh the ui
     time.sleep(10)
