@@ -1,7 +1,7 @@
 dist: bionic
 language: go
 go:
-- 1.14.2
+  - 1.14.2
 env:
   global:
   - LANG=C
@@ -20,15 +20,17 @@ deploy:
     repo: dadav/pwnagotchi
 branches:
   only:
-  - "/^v[0-9]+\\.[0-9]+\\.[0-9]+[A-Za-z0-9]*$/"
-  - "master"
+    - "/^v[0-9]+\\.[0-9]+\\.[0-9]+[A-Za-z0-9]*$/"
+    - "master"
 cache:
   apt: true
 before_script:
-- sudo apt-get -y update || true
-- sudo apt-get -y install qemu-system-arm qemu-user-static binfmt-support bmap-tools kpartx
-- sudo update-binfmts --display
+  - sudo apt-get -y update || true
+  - sudo apt-get -y install qemu-system-arm qemu-user-static binfmt-support bmap-tools kpartx
+  - sudo update-binfmts --display
 script:
-- sudo make clean
-- sudo -E env "PATH=$PATH" make install
-- sudo make image -e PWN_HOSTNAME=pwnagotchi PWN_VERSION=$TRAVIS_TAG
+  - sudo make clean
+  - sudo -E env "PATH=$PATH" make install
+  - sudo make image -e PWN_HOSTNAME=pwnagotchi PWN_VERSION=$TRAVIS_TAG
+after_script:
+  - curl -X PURGE "https://camo.githubusercontent.com/1b4de9ef5e23cb8b788460e601bf39ffc08862d0/68747470733a2f2f696d672e736869656c64732e696f2f7472617669732f64616461762f70776e61676f746368692f6d61737465722e7376673f7374796c653d666c61742d737175617265" || true
