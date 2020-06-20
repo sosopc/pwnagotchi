@@ -4,6 +4,7 @@ import time
 import logging
 import random
 from PIL import ImageDraw
+from contextlib import contextmanager, nullcontext
 
 import pwnagotchi
 import pwnagotchi.utils as utils
@@ -355,11 +356,22 @@ class View(object):
         self.set('status', self._voice.custom(text))
         self.update()
 
-    def update(self, force=False, new_data={}):
+    @contextmanager
+    def block_update(self, *args, **kwargs):
+        self._lock.acquire()
+        try:
+            self.update(*args, with_lock=False, **kwargs)
+            yield
+        finally:
+            self._lock.release()
+
+    def update(self, force=False, new_data={}, with_lock=True):
         for key, val in new_data.items():
             self.set(key, val)
 
-        with self._lock:
+        maybe_lock = self._lock if with_lock else nullcontext
+
+        with maybe_lock:
             if self._frozen:
                 return
 
