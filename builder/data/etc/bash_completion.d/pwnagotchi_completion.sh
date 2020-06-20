@@ -3,10 +3,11 @@ _show_complete()
     local cur opts node_names all_options opt_line
     all_options="
 pwnagotchi -h --help -C --config -U --user-config --manual --skip-session --clear --debug --version --print-config {plugins}
-pwnagotchi plugins -h --help {list,install,enable,disable,uninstall,update,upgrade}
+pwnagotchi plugins -h --help {list,install,edit,enable,disable,uninstall,update,upgrade}
 pwnagotchi plugins list -i --installed -h --help
 pwnagotchi plugins install -h --help
 pwnagotchi plugins uninstall -h --help
+pwnagotchi plugins edit -h --help
 pwnagotchi plugins enable -h --help
 pwnagotchi plugins disable -h --help
 pwnagotchi plugins update -h --help
