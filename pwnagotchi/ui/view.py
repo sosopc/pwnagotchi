@@ -369,7 +369,7 @@ class View(object):
         for key, val in new_data.items():
             self.set(key, val)
 
-        maybe_lock = self._lock if with_lock else nullcontext
+        maybe_lock = self._lock if with_lock else nullcontext()
 
         with maybe_lock:
             if self._frozen:
