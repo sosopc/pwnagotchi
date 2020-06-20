@@ -361,7 +361,7 @@ class View(object):
         self._lock.acquire()
         try:
             self.update(*args, with_lock=False, **kwargs)
-            yield
+            yield self
         finally:
             self._lock.release()
 
