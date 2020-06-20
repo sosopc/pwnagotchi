@@ -28,9 +28,21 @@ class Watchdog(plugins.Plugin):
     def on_epoch(self, agent, epoch, epoch_data):
         if self.status.newer_then_minutes(5):
             return
+
+        data_keys = ['num_deauths', 'num_associations', 'num_handshakes']
+        has_interactions = any([epoch_data[x]
+                                for x in data_keys
+                                if x in epoch_data])
+
+        if has_interactions:
+            return
+
+        epoch_duration = epoch_data['duration_secs']
+
         # get last 10 lines
-        last_lines = ''.join(list(TextIOWrapper(subprocess.Popen(['journalctl','-n10','-k', '--since', '-5m'],
+        last_lines = ''.join(list(TextIOWrapper(subprocess.Popen(['journalctl','-n10','-k', '--since', f"{epoch_duration} seconds ago"],
                                                 stdout=subprocess.PIPE).stdout))[-10:])
+
         if len(self.pattern.findall(last_lines)) >= 5:
             display = agent.view()
             display.set('status', 'Blind-Bug detected. Restarting.')
@@ -38,4 +50,4 @@ class Watchdog(plugins.Plugin):
             logging.info('[WATCHDOG] Blind-Bug detected. Restarting.')
             mode = 'MANU' if agent.mode == 'manual' else 'AUTO'
             import pwnagotchi
-            pwnagotchi.restart(mode=mode)
+            pwnagotchi.reboot(mode=mode)
