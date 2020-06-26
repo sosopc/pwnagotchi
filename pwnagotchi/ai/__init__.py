@@ -52,7 +52,7 @@ def load(config, agent, epoch, from_disk=True):
                 if 'same action space' not in str(as_err):
                     raise as_err
                 else:
-                    logging.debug("[ai] Model could not be loaded. Using new model.")
+                    logging.warning("[ai] Model could not be loaded. Using new model.")
             else:
                 logging.debug("[ai] A2C loaded in %.2fs" % (time.time() - start))
         else:
