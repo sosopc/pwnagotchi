@@ -160,8 +160,9 @@
 
   - name: install packages
     apt:
-      name: "{{ packages.apt.install }}"
+      name: "{{ item }}"
       state: present
+    with_items: "{{ packages.apt.install }}"
 
   - name: configure dphys-swapfile
     file:
