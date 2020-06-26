@@ -9,7 +9,7 @@ sys.path.insert(0,
                 os.path.join(os.path.dirname(os.path.realpath(__file__)),
                              '../'))
 
-import pwnagotchi.ui.faces as faces
+from pwnagotchi.ui import faces, fonts
 from pwnagotchi.ui.display import Display
 from PIL import Image
 
@@ -101,6 +101,9 @@ def main():
     main:
         lang: {lang}
     ui:
+        font:
+            name: 'DejaVuSansMono'
+            size_offset: 0
         fps: 0.3
         display:
             enabled: false
@@ -141,6 +144,7 @@ def main():
     for display_type in args.displays:
         config = yaml.safe_load(config_template.format(display=display_type,
                                                        lang=args.lang))
+        fonts.init(config)
         display = CustomDisplay(config=config, state={'name': f"{display_type}>"})
         list_of_displays.append(display)
 
