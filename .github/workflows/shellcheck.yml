@@ -20,4 +20,4 @@ jobs:
     - name: Run ShellCheck
       uses: ludeeus/action-shellcheck@master
       with:
-        ignore: bash_completion.d
+        ignore: etc
