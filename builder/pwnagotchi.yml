@@ -156,7 +156,17 @@
     apt:
       name: "{{ packages.apt.install }}"
       state: present
-    verbosity: 1
+    async: 1200
+    poll: 0
+    register: package_installer
+
+  - name: wait for packages
+    async_status:
+      jid: "{{ package_installer.ansible_job_id }}"
+    register: install_result
+    until: install_result.finished
+    retries: 10
+    delay: 120
 
   - name: configure dphys-swapfile
     file:
