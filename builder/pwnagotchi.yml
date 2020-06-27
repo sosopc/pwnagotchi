@@ -63,6 +63,7 @@
           - python3-pip
           - python3-mpi4py
           - python3-smbus
+          - python3-grpcio
           - unzip
           - gawk
           - libopenmpi-dev
@@ -108,9 +109,9 @@
 
   tasks:
   - name: change hostname
-    hostname:
-      name: "{{ pwnagotchi.hostname }}"
-    when: lookup('file', '/etc/hostname') == "raspberrypi"
+    copy:
+      content: "{{ pwnagotchi.hostname }}"
+      dest: /etc/hostname
     notify:
       - add hostname to hosts
       - configure motd
@@ -138,19 +139,35 @@
       selection: hold
     with_items: "{{ packages.apt.hold }}"
 
-  - name: update apt package cache
-    apt:
-      update_cache: yes
-
   - name: remove unecessary apt packages
     apt:
       name: "{{ packages.apt.remove }}"
       state: absent
       purge: yes
 
+  - name: install git
+    apt:
+      name: git
+      state: present
+
+  - name: clone pwnagotchi repository
+    git:
+      repo: https://github.com/dadav/pwnagotchi.git
+      dest: /usr/local/src/pwnagotchi
+      version: "{{ pwnagotchi.version }}"
+    register: pwnagotchigit
+
+  - name: download pip deps in background
+    shell:
+      cmd: pip3 download -d /tmp/pip-cache -r /usr/local/src/pwnagotchi/requirements.txt
+    async: 1200
+    poll: 0
+    register: pip_cache
+
   - name: upgrade apt distro
     apt:
       upgrade: dist
+      update_cache: yes
     async: 1200
     poll: 0
     register: upgrade_task
@@ -167,6 +184,7 @@
     apt:
       name: "{{ packages.apt.install }}"
       state: present
+      install_recommends: no
     async: 1200
     poll: 0
     register: package_installer
@@ -226,18 +244,10 @@
         {{ pip_packages | default({}) | combine( { item.split()[0]: item.split()[1] } ) }}
     with_items: "{{ pip_output.stdout_lines }}"
 
-
   - name: acquire python3 pip target
     command: "python3 -c 'import sys;print(sys.path.pop())'"
     register: pip_target
     changed_when: true
-
-  - name: clone pwnagotchi repository
-    git:
-      repo: https://github.com/dadav/pwnagotchi.git
-      dest: /usr/local/src/pwnagotchi
-      version: master
-    register: pwnagotchigit
 
   - name: create /usr/local/share/pwnagotchi/ folder
     file:
@@ -276,25 +286,31 @@
       extra_args: "--no-deps --no-cache-dir --platform=linux_armv6l --only-binary=:all: --target={{ pip_target.stdout }}"
     when: (pip_packages['tensorflow'] is undefined) or (pip_packages['tensorflow'] != '1.13.1')
 
-  - name: test what is happening
-    shell: pip3 --no-cache-dir install /usr/local/src/pwnagotchi/dist/pwnagotchi*.whl
+  - name: wait for pip cache
+    async_status:
+      jid: "{{ pip_cache.ansible_job_id }}"
+    register: cache_result
+    until: cache_result.finished
+    retries: 10
+    delay: 120
 
-  # - name: install pwnagotchi wheel and dependencies # noqa 503
-  #   pip:
-  #     name: "{{ lookup('fileglob', '/usr/local/src/pwnagotchi/dist/pwnagotchi*.whl') }}"
-  #     extra_args: "--no-cache-dir"
-  #   when: (pwnagotchigit.changed) or (pip_packages['pwnagotchi'] is undefined) or (pip_packages['pwnagotchi'] != pwnagotchi_version)
-  #   async: 1200
-  #   poll: 0
-  #   register: install_pwnagotchi
+  - name: install pwnagotchi wheel and dependencies # noqa 503
+    pip:
+      name: "{{ lookup('fileglob', '/usr/local/src/pwnagotchi/dist/pwnagotchi*.whl') }}"
+      # extra_args: "--no-cache-dir"
+      extra_args: "--no-index --find-links file:///tmp/pip-cache"
+    when: (pwnagotchigit.changed) or (pip_packages['pwnagotchi'] is undefined) or (pip_packages['pwnagotchi'] != pwnagotchi_version)
+    async: 2400
+    poll: 0
+    register: install_pwnagotchi
 
-  # - name: check install progress
-  #   async_status:
-  #     jid: "{{ install_pwnagotchi.ansible_job_id }}"
-  #   register: install_pwnagotchi_result
-  #   until: install_pwnagotchi_result.finished
-  #   retries: 10
-  #   delay: 120
+  - name: check install progress
+    async_status:
+      jid: "{{ install_pwnagotchi.ansible_job_id }}"
+    register: install_pwnagotchi_result
+    until: install_pwnagotchi_result.finished
+    retries: 10
+    delay: 240
 
   - name: download and install pwngrid
     unarchive:
