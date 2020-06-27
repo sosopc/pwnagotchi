@@ -116,6 +116,8 @@ def load_from_path(path, enabled=()):
     logging.debug("loading plugins from %s - enabled: %s" % (path, enabled))
     for filename in glob.glob(os.path.join(path, "*.py")):
         plugin_name = os.path.basename(filename.replace(".py", ""))
+        if plugin_name == 'example':
+            continue
         database[plugin_name] = filename
         if plugin_name in enabled:
             try:
