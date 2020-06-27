@@ -279,19 +279,19 @@
   - name: install pwnagotchi wheel and dependencies # noqa 503
     pip:
       name: "{{ lookup('fileglob', '/usr/local/src/pwnagotchi/dist/pwnagotchi*.whl') }}"
-      extra_args: "--no-cache-dir"
+      extra_args: "--verbose --no-cache-dir"
     when: (pwnagotchigit.changed) or (pip_packages['pwnagotchi'] is undefined) or (pip_packages['pwnagotchi'] != pwnagotchi_version)
-    async: 1800
-    poll: 0
-    register: install_pwnagotchi
+    # async: 1800
+    # poll: 0
+    # register: install_pwnagotchi
 
-  - name: check on installtion
-    async_status:
-      jid: "{{ install_pwnagotchi.ansible_job_id }}"
-    register: install_pwnagotchi_result
-    until: install_pwnagotchi_result.finished
-    retries: 10
-    delay: 180
+  # - name: check on installtion
+    # async_status:
+    #   jid: "{{ install_pwnagotchi.ansible_job_id }}"
+    # register: install_pwnagotchi_result
+    # until: install_pwnagotchi_result.finished
+    # retries: 10
+    # delay: 180
 
   - name: download and install pwngrid
     unarchive:
