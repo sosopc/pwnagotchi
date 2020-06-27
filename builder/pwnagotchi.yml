@@ -151,6 +151,17 @@
   - name: upgrade apt distro
     apt:
       upgrade: dist
+    async: 1200
+    poll: 0
+    register: upgrade_task
+
+  - name: check upgrade
+    async_status:
+      jid: "{{ upgrade_task.ansible_job_id }}"
+    register: upgrade_status
+    until: upgrade_status.finished
+    retries: 10
+    delay: 120
 
   - name: install packages
     apt:
