@@ -156,6 +156,7 @@
     apt:
       name: "{{ packages.apt.install }}"
       state: present
+    verbosity: 1
 
   - name: configure dphys-swapfile
     file:
