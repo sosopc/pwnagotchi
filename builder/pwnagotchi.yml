@@ -109,17 +109,11 @@
   tasks:
   - name: change hostname
     hostname:
-      name: "{{pwnagotchi.hostname}}"
+      name: "{{ pwnagotchi.hostname }}"
     when: lookup('file', '/etc/hostname') == "raspberrypi"
-    register: hostname
-
-  - name: add hostname to /etc/hosts
-    lineinfile:
-      dest: /etc/hosts
-      regexp: '^127\.0\.1\.1[ \t]+raspberrypi'
-      line: "127.0.1.1\t{{pwnagotchi.hostname}}"
-      state: present
-    when: hostname.changed
+    notify:
+      - add hostname to hosts
+      - configure motd
 
   - name: disable sap plugin for bluetooth.service
     lineinfile:
@@ -160,9 +154,8 @@
 
   - name: install packages
     apt:
-      name: "{{ item }}"
+      name: "{{ packages.apt.install }}"
       state: present
-    with_items: "{{ packages.apt.install }}"
 
   - name: configure dphys-swapfile
     file:
@@ -173,9 +166,10 @@
     git:
       repo: https://github.com/repaper/gratis.git
       dest: /usr/local/src/gratis
+      version: master
     register: gratisgit
 
-  - name: build papirus service
+  - name: build papirus service # noqa 503
     make:
       chdir: /usr/local/src/gratis
       target: rpi
@@ -184,7 +178,7 @@
         PANEL_VERSION: 'V231_G2'
     when: gratisgit.changed
 
-  - name: install papirus service
+  - name: install papirus service # noqa 503
     make:
       chdir: /usr/local/src/gratis
       target: rpi-install
@@ -202,6 +196,7 @@
   - name: collect python pip package list
     command: "pip3 list"
     register: pip_output
+    changed_when: true
 
   - name: set python pip package facts
     set_fact:
@@ -209,14 +204,17 @@
         {{ pip_packages | default({}) | combine( { item.split()[0]: item.split()[1] } ) }}
     with_items: "{{ pip_output.stdout_lines }}"
 
+
   - name: acquire python3 pip target
     command: "python3 -c 'import sys;print(sys.path.pop())'"
     register: pip_target
+    changed_when: true
 
   - name: clone pwnagotchi repository
     git:
       repo: https://github.com/dadav/pwnagotchi.git
       dest: /usr/local/src/pwnagotchi
+      version: master
     register: pwnagotchigit
 
   - name: create /usr/local/share/pwnagotchi/ folder
@@ -228,22 +226,23 @@
     git:
       repo: https://github.com/evilsocket/pwnagotchi-plugins-contrib.git
       dest: /usr/local/share/pwnagotchi/availaible-plugins
+      version: master
 
   - name: fetch pwnagotchi version
     set_fact:
-      pwnagotchi_version: "{{ lookup('file', '/usr/local/src/pwnagotchi/pwnagotchi/_version.py') | regex_replace('.*__version__.*=.*''([0-9]+\\.[0-9]+\\.[0-9]+[A-Za-z0-9]*)''.*', '\\1') }}"
+      pwnagotchi_version: "{{ lookup('file', '/usr/local/src/pwnagotchi/pwnagotchi/_version.py') | regex_replace('.*__version__.*=.*''([0-9]+\\.[0-9]+\\.[0-9]+[A-Za-z0-9]*)''.*', '\\1') }}" # noqa 204
 
   - name: pwnagotchi version found
     debug:
       msg: "{{ pwnagotchi_version }}"
 
-  - name: build pwnagotchi wheel
+  - name: build pwnagotchi wheel # noqa 503
     command: "python3 setup.py sdist bdist_wheel"
     args:
       chdir: /usr/local/src/pwnagotchi
     when: (pwnagotchigit.changed) or (pip_packages['pwnagotchi'] is undefined) or (pip_packages['pwnagotchi'] != pwnagotchi_version)
 
-  - name: install opencv-python
+  - name: install opencv-python # noqa 503
     pip:
       name: "https://www.piwheels.org/simple/opencv-python/opencv_python-3.4.3.18-cp37-cp37m-linux_armv6l.whl"
       extra_args: "--no-deps --no-cache-dir --platform=linux_armv6l --only-binary=:all: --target={{ pip_target.stdout }}"
@@ -255,7 +254,7 @@
       extra_args: "--no-deps --no-cache-dir --platform=linux_armv6l --only-binary=:all: --target={{ pip_target.stdout }}"
     when: (pip_packages['tensorflow'] is undefined) or (pip_packages['tensorflow'] != '1.13.1')
 
-  - name: install pwnagotchi wheel and dependencies
+  - name: install pwnagotchi wheel and dependencies # noqa 503
     pip:
       name: "{{ lookup('fileglob', '/usr/local/src/pwnagotchi/dist/pwnagotchi*.whl') }}"
       extra_args: "--no-cache-dir"
@@ -282,9 +281,10 @@
     git:
       repo: https://github.com/bettercap/caplets.git
       dest: /tmp/caplets
+      version: master
     register: capletsgit
 
-  - name: install bettercap caplets
+  - name: install bettercap caplets # noqa 503
     make:
       chdir: /tmp/caplets
       target: install
@@ -336,14 +336,14 @@
       dest: /boot/config.txt
       insertafter: EOF
       line: '{{ item }}'
-    with_items: "{{system.boot_options}}"
+    with_items: "{{ system.boot_options }}"
 
   - name: adjust /etc/modules
     lineinfile:
       dest: /etc/modules
       insertafter: EOF
       line: '{{ item }}'
-    with_items: "{{system.modules}}"
+    with_items: "{{ system.modules }}"
 
   - name: change root partition
     replace:
@@ -360,38 +360,6 @@
       backup: no
       regexp: '(.*)$'
       line: '\1 modules-load=dwc2,g_ether'
-
-  - name: configure motd
-    copy:
-      dest: /etc/motd
-      content: |
-        (◕‿‿◕) {{pwnagotchi.hostname}}
-
-        Hi! I'm a pwnagotchi, please take good care of me!
-        Here are some basic things you need to know to raise me properly!
-
-        If you want to change my configuration, use /etc/pwnagotchi/config.toml
-
-        All the configuration options can be found on /etc/pwnagotchi/default.toml,
-        but don't change this file because I will recreate it every time I'm restarted!
-
-        I'm managed by systemd. Here are some basic commands.
-
-        If you want to know what I'm doing, you can check my logs with the command
-        tail -f /var/log/pwnagotchi.log
-
-        If you want to know if I'm running, you can use
-        systemctl status pwnagotchi
-
-        You can restart me using
-        systemctl restart pwnagotchi
-
-        But be aware I will go into MANUAL mode when restarted!
-        You can put me back into AUTO mode using
-        touch /root/.pwnagotchi-auto && systemctl restart pwnagotchi
-
-        You learn more about me at https://pwnagotchi.ai/
-    when: hostname.changed
 
   - name: clean apt cache
     apt:
@@ -418,7 +386,7 @@
   - name: remove ssh keys
     file:
       state: absent
-      path: "{{item}}"
+      path: "{{ item }}"
     with_fileglob:
       - "/etc/ssh/ssh_host*_key*"
 
@@ -426,3 +394,41 @@
   - name: reload systemd services
     systemd:
       daemon_reload: yes
+
+  - name: add hostname to hosts
+    lineinfile:
+      dest: /etc/hosts
+      regexp: '^127\.0\.1\.1[ \t]+raspberrypi'
+      line: "127.0.1.1\t{{ pwnagotchi.hostname }}"
+      state: present
+
+  - name: configure motd
+    copy:
+      dest: /etc/motd
+      content: |
+        (◕‿‿◕) {{ pwnagotchi.hostname }}
+
+        Hi! I'm a pwnagotchi, please take good care of me!
+        Here are some basic things you need to know to raise me properly!
+
+        If you want to change my configuration, use /etc/pwnagotchi/config.toml
+
+        All the configuration options can be found on /etc/pwnagotchi/default.toml,
+        but don't change this file because I will recreate it every time I'm restarted!
+
+        I'm managed by systemd. Here are some basic commands.
+
+        If you want to know what I'm doing, you can check my logs with the command
+        tail -f /var/log/pwnagotchi.log
+
+        If you want to know if I'm running, you can use
+        systemctl status pwnagotchi
+
+        You can restart me using
+        systemctl restart pwnagotchi
+
+        But be aware I will go into MANUAL mode when restarted!
+        You can put me back into AUTO mode using
+        touch /root/.pwnagotchi-auto && systemctl restart pwnagotchi
+
+        You learn more about me at https://pwnagotchi.ai/
