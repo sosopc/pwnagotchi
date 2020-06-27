@@ -9,8 +9,8 @@ git fetch --tags >/dev/null
 printf "\n\n"
 
 CURTAG=$(git describe --tags --abbrev=0)
-OUTPUT=$(git log $CURTAG..HEAD --oneline)
-IFS=$'\n' LINES=($OUTPUT)
+OUTPUT="$(git log "$CURTAG"..HEAD --oneline)"
+IFS=$'\n' LINES=("$OUTPUT")
 
 for LINE in "${LINES[@]}"; do
   LINE=$(echo "$LINE" | sed -E "s/^[[:xdigit:]]+\s+//")
@@ -27,7 +27,7 @@ for LINE in "${LINES[@]}"; do
   fi
 done
 
-if [ -n "$NEW" ]; then
+if [[ "${#NEW[@]}" -ne 0 ]]; then
   echo
   echo "**New Features**"
   echo
@@ -36,7 +36,7 @@ if [ -n "$NEW" ]; then
   done
 fi
 
-if [ -n "$FIXES" ]; then
+if [[ "${#FIXES[@]}" -ne 0 ]]; then
   echo
   echo "**Fixes**"
   echo
@@ -45,7 +45,7 @@ if [ -n "$FIXES" ]; then
   done
 fi
 
-if [ -n "$MISC" ]; then
+if [[ "${#MISC[@]}" -ne 0 ]]; then
   echo
   echo "**Misc**"
   echo

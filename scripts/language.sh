@@ -42,8 +42,7 @@ function add_lang() {
 }
 
 function del_lang() {
-  # set -eu is present; so not dangerous
-  rm -rf "$LOCALE_DIR/$1"
+  rm -rf "${LOCALE_DIR:?}/$1"
 }
 
 function comp_lang() {
