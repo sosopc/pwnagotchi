@@ -6,7 +6,8 @@ import glob
 import re
 import shutil
 from fnmatch import fnmatch
-from pwnagotchi.utils import download_file, unzip, save_config, parse_version, md5
+from pwnagotchi.utils import download_file, unzip, save_config, parse_version,\
+    md5, pip_install
 from pwnagotchi.plugins import default_path
 
 
@@ -257,6 +258,18 @@ def _extract_version(filename):
     return None
 
 
+def _extract_deps(filename):
+    """
+    Extracts the version from a python file
+    """
+    plugin_content = open(filename, 'rt').read()
+    m = re.search(r'__dependencies__[\t ]*=[\t ]*(\[[^\]]+\])', plugin_content)
+    if m:
+        from ast import literal_eval
+        return literal_eval(m.groups()[0])
+    return None
+
+
 def _get_available():
     """
     Get all availaible plugins
@@ -319,6 +332,13 @@ def install(args, config):
         save_config(config, args.user_config)
 
     os.makedirs(install_path, exist_ok=True)
+
+    deps = _extract_deps(available[plugin_name])
+    if deps:
+        for d in deps:
+            if not pip_install(d):
+                logging.error('Dependency "%s" not found'.format(d))
+                return 1
 
     shutil.copyfile(available[plugin_name], os.path.join(install_path, os.path.basename(available[plugin_name])))
 

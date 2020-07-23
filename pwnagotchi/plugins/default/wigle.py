@@ -97,6 +97,7 @@ class Wigle(plugins.Plugin):
     __version__ = '2.0.0'
     __license__ = 'GPL3'
     __description__ = 'This plugin automatically uploads collected wifis to wigle.net'
+    __dependencies__ = ['requests']
 
     def __init__(self):
         self.ready = False

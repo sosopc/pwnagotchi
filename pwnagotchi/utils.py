@@ -130,6 +130,17 @@ def merge_config(user, default):
                 user[k] = merge_config(user[k], v)
     return user
 
+def pip_install(package):
+    logging.debug('[pip] installing "%s"'.format(package))
+    try:
+        subprocess.check_call([sys.executable, '-m', 'pip', 'install', package],
+                            stdout=subprocess.DEVNULL,
+                            stderr=subprocess.DEVNULL)
+    except subprocess.CalledProcessError as cpe:
+        logging.error('[pip] got "%s" while installing "%s"'.format(cpe, package))
+        return False
+    return True
+
 def keys_to_str(data):
     if isinstance(data,list):
         converted_list = list()

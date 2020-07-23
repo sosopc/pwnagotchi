@@ -467,6 +467,7 @@ class WebConfig(plugins.Plugin):
     __version__ = '1.0.0'
     __license__ = 'GPL3'
     __description__ = 'This plugin allows the user to make runtime changes.'
+    __dependencies__ = ['flask']
 
     def __init__(self):
         self.ready = False
