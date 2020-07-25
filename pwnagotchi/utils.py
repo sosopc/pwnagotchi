@@ -63,6 +63,42 @@ class DottedTomlEncoder(TomlEncoder):
                                 str(self.dump_value(value)) + '\n')
         return (retstr, self._dict())
 
+def analyze_plugin(filename):
+    """
+    Analyses a plugin without actualy running the code
+    """
+    import ast
+
+    root = ast.parse(open(filename).read())
+    classes = [n for n in root.body if isinstance(n, ast.ClassDef)]
+    plugins = [n for n in classes
+                    if n.bases and hasattr(n.bases[0], 'attr')
+                    and n.bases[0].attr == 'Plugin']
+
+    # one plugin only
+    assert len(plugins) == 1
+
+    assigns = [n for n in plugins[0].body if isinstance(n, ast.Assign)]
+
+    result = dict()
+    result['filename'] = filename
+
+    for a in assigns:
+        if not len(a.targets) == 1:
+            continue
+
+        name = a.targets[0].id
+        value = None
+
+        if isinstance(a.value, ast.Constant):
+            value = a.value.value
+        elif isinstance(a.value, ast.List):
+            value = [n.value for n in a.value.elts]
+
+        result[name] = value
+
+    return result
+
 
 def parse_version(version):
     """

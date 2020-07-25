@@ -3,11 +3,10 @@
 import os
 import logging
 import glob
-import re
 import shutil
 from fnmatch import fnmatch
 from pwnagotchi.utils import download_file, unzip, save_config, parse_version,\
-    md5, pip_install
+    md5, pip_install, analyze_plugin
 from pwnagotchi.plugins import default_path
 
 
@@ -161,8 +160,9 @@ def upgrade(args, config, pattern='*'):
         if not fnmatch(plugin, pattern) or plugin not in available:
             continue
 
-        available_version = _extract_version(available[plugin])
-        installed_version = _extract_version(filename)
+        available_plugin_data = analyze_plugin(available[plugin])
+        available_version = parse_version(available_plugin_data['__version__'])
+        installed_version = parse_version(analyze_plugin(filename)['__version__'])
 
         if installed_version and available_version:
                 if available_version <= installed_version:
@@ -171,6 +171,15 @@ def upgrade(args, config, pattern='*'):
             continue
 
         logging.info('Upgrade %s from %s to %s', plugin, '.'.join(installed_version), '.'.join(available_version))
+
+        if '__dependencies__' in available_plugin_data:
+            deps = available_plugin_data['__dependencies__']
+            if deps:
+                for d in deps:
+                    if not pip_install(d):
+                        logging.error('Dependency "%s" not found'.format(d))
+                        return 1
+
         shutil.copyfile(available[plugin], installed[plugin])
 
         # maybe has config
@@ -214,10 +223,12 @@ def list_plugins(args, config, pattern='*'):
             if not fnmatch(plugin, pattern):
                 continue
             found = True
-            installed_version = _extract_version(filename)
+            plugin_info = analyze_plugin(filename)
+            installed_version = parse_version(plugin_info['__version__'])
             available_version = None
             if plugin in available:
-                available_version = _extract_version(available[plugin])
+                available_plugin_info = analyze_plugin(available[plugin])
+                available_version = parse_version(available_plugin_info['__version__'])
 
             status = "installed"
             if installed_version and available_version:
@@ -236,8 +247,9 @@ def list_plugins(args, config, pattern='*'):
         if not fnmatch(plugin, pattern):
             continue
         found = True
-        available_version = _extract_version(available[plugin])
-        print(line.format(name=plugin, width=max_len, version='.'.join(available_version), enabled='-', status='available'))
+        available_plugin_info = analyze_plugin(available[plugin])
+        available_version = available_plugin_info['__version__']
+        print(line.format(name=plugin, width=max_len, version=available_version, enabled='-', status='available'))
 
     print('-' * line_length)
 
@@ -245,29 +257,6 @@ def list_plugins(args, config, pattern='*'):
         logging.info('Maybe try: pwnagotchi plugins update')
         return 1
     return 0
-
-
-def _extract_version(filename):
-    """
-    Extracts the version from a python file
-    """
-    plugin_content = open(filename, 'rt').read()
-    m = re.search(r'__version__[\t ]*=[\t ]*[\'\"]([^\"\']+)', plugin_content)
-    if m:
-        return parse_version(m.groups()[0])
-    return None
-
-
-def _extract_deps(filename):
-    """
-    Extracts the version from a python file
-    """
-    plugin_content = open(filename, 'rt').read()
-    m = re.search(r'__dependencies__[\t ]*=[\t ]*(\[[^\]]+\])', plugin_content)
-    if m:
-        from ast import literal_eval
-        return literal_eval(m.groups()[0])
-    return None
 
 
 def _get_available():
@@ -331,15 +320,17 @@ def install(args, config):
         config['main']['custom_plugins'] = install_path
         save_config(config, args.user_config)
 
+
+    plugin_info = analyze_plugin(available[plugin_name])
+    if '__dependencies__' in plugin_info:
+        deps = plugin_info['__dependencies__']
+        if deps:
+            for d in deps:
+                if not pip_install(d):
+                    logging.error('Dependency "%s" not found'.format(d))
+                    return 1
+
     os.makedirs(install_path, exist_ok=True)
-
-    deps = _extract_deps(available[plugin_name])
-    if deps:
-        for d in deps:
-            if not pip_install(d):
-                logging.error('Dependency "%s" not found'.format(d))
-                return 1
-
     shutil.copyfile(available[plugin_name], os.path.join(install_path, os.path.basename(available[plugin_name])))
 
     # maybe has config

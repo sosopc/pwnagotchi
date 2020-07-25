@@ -57,7 +57,7 @@ def toggle_plugin(name, enable=True):
         return True
 
     if enable and name in database and name not in loaded:
-        load_from_file(database[name])
+        load_from_file(database[name]['filename'])
         if name in loaded and pwnagotchi.config and name in pwnagotchi.config['main']['plugins']:
             loaded[name].options = pwnagotchi.config['main']['plugins'][name]
         one(name, 'loaded')
@@ -118,7 +118,7 @@ def load_from_path(path, enabled=()):
         plugin_name = os.path.basename(filename.replace(".py", ""))
         if plugin_name == 'example':
             continue
-        database[plugin_name] = filename
+        database[plugin_name] = analyze_plugin(filename)
         if plugin_name in enabled:
             try:
                 load_from_file(filename)
