@@ -2,9 +2,10 @@ import os
 import glob
 import _thread
 import threading
-import importlib, importlib.util
+import importlib
+import importlib.util
 import logging
-
+from pwnagotchi.utils import analyze_plugin
 
 
 default_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), "default")

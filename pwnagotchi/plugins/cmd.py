@@ -29,7 +29,6 @@ def add_parsers(parser):
 
     ## pwnagotchi plugins list
     parser_plugins_list = plugin_subparsers.add_parser('list', help='List available pwnagotchi plugins')
-    parser_plugins_list.add_argument('-i', '--installed', action='store_true', required=False, help='List also installed plugins')
 
     ## pwnagotchi plugins update
     parser_plugins_update = plugin_subparsers.add_parser('update', help='Updates the database')
@@ -217,30 +216,29 @@ def list_plugins(args, config, pattern='*'):
     print(header)
     print('-' * line_length)
 
-    if args.installed:
-        # only installed (maybe update available?)
-        for plugin, filename in sorted(installed.items()):
-            if not fnmatch(plugin, pattern):
-                continue
-            found = True
-            plugin_info = analyze_plugin(filename)
-            installed_version = parse_version(plugin_info['__version__'])
-            available_version = None
-            if plugin in available:
-                available_plugin_info = analyze_plugin(available[plugin])
-                available_version = parse_version(available_plugin_info['__version__'])
+    # only installed (maybe update available?)
+    for plugin, filename in sorted(installed.items()):
+        if not fnmatch(plugin, pattern):
+            continue
+        found = True
+        plugin_info = analyze_plugin(filename)
+        installed_version = parse_version(plugin_info['__version__'])
+        available_version = None
+        if plugin in available:
+            available_plugin_info = analyze_plugin(available[plugin])
+            available_version = parse_version(available_plugin_info['__version__'])
 
-            status = "installed"
-            if installed_version and available_version:
-                if available_version > installed_version:
-                    status = "installed (^)"
+        status = "installed"
+        if installed_version and available_version:
+            if available_version > installed_version:
+                status = "installed (^)"
 
-            enabled = 'enabled' if plugin in config['main']['plugins'] and \
-                'enabled' in config['main']['plugins'][plugin] and \
-                    config['main']['plugins'][plugin]['enabled'] \
-                        else 'disabled'
+        enabled = 'enabled' if plugin in config['main']['plugins'] and \
+            'enabled' in config['main']['plugins'][plugin] and \
+                config['main']['plugins'][plugin]['enabled'] \
+                    else 'disabled'
 
-            print(line.format(name=plugin, width=max_len, version='.'.join(installed_version), enabled=enabled, status=status))
+        print(line.format(name=plugin, width=max_len, version='.'.join(installed_version), enabled=enabled, status=status))
 
 
     for plugin in sorted(available_not_installed):

@@ -92,8 +92,15 @@ def analyze_plugin(filename):
 
         if isinstance(a.value, ast.Constant):
             value = a.value.value
+        elif isinstance(a.value, ast.Str):
+            value = a.value.__dict__['s']
         elif isinstance(a.value, ast.List):
-            value = [n.value for n in a.value.elts]
+            value = list()
+            for e in a.value.elts:
+                if isinstance(e, ast.Constant):
+                    value.append(e.value)
+                elif isinstance(e, ast.Str):
+                    value.append(e.__dict__['s'])
 
         result[name] = value
 
