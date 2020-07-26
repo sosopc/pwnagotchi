@@ -207,8 +207,7 @@ def list_plugins(args, config, pattern='*'):
     available_and_installed = set(list(available.keys()) + list(installed.keys()))
     available_not_installed = set(available.keys()) - set(installed.keys())
 
-    max_len_list = available_and_installed if args.installed else available_not_installed
-    max_len = max(map(len, max_len_list))
+    max_len = max(map(len, available_and_installed))
     header = line.format(name='Plugin', width=max_len, version='Version', enabled='Active', status='Status')
     line_length = max(max_len, len('Plugin')) + len(header) - len('Plugin') - 12 # lol
 
