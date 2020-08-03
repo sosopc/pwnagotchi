@@ -9,7 +9,8 @@ import glob
 from threading import Lock
 
 import pwnagotchi
-import pwnagotchi.plugins as plugins
+from pwnagotchi import plugins
+from pwnagotchi.plugins.cmd import update as plugin_update, upgrade as plugin_upgrade
 from pwnagotchi.utils import StatusFile, parse_version as version_to_tuple
 
 
@@ -187,6 +188,7 @@ class AutoUpdate(plugins.Plugin):
 
             logging.info("[update] checking for updates ...")
 
+            config = agent.config()
             display = agent.view()
             prev_status = display.get('status')
 
@@ -235,6 +237,12 @@ class AutoUpdate(plugins.Plugin):
                         logging.error(ex)
                     finally:
                         self.done_caplets_check = True
+
+                # update plugins
+                logging.info("[update] Checking for new plugins")
+                if plugin_update(config) == 0:
+                    logging.info("[update] Upgrading plugins")
+                    plugin_upgrade(None, config)
 
                 logging.info("[update] done")
 

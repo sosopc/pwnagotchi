@@ -7,8 +7,8 @@ import asyncio
 import _thread
 
 import pwnagotchi
-import pwnagotchi.utils as utils
-import pwnagotchi.plugins as plugins
+from pwnagotchi import utils
+from pwnagotchi import plugins
 from pwnagotchi.ui.web.server import Server
 from pwnagotchi.automata import Automata
 from pwnagotchi.log import LastSession
@@ -122,7 +122,7 @@ class Agent(Client, Automata, AsyncAdvertiser, AsyncTrainer):
     def _wait_bettercap(self):
         while True:
             try:
-                _s = self.session()
+                _ = self.session()
                 return
             except Exception:
                 logging.info("waiting for bettercap API to be available ...")
