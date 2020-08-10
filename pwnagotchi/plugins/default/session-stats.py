@@ -232,7 +232,6 @@ class SessionStats(plugins.Plugin):
             extract_keys = [
                 'missed_interactions',
                 'num_hops',
-                'num_peers',
                 'tot_bond',
                 'avg_bond',
                 'num_deauths',

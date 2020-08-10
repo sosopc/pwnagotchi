@@ -2,18 +2,15 @@ import _thread
 from threading import Lock
 import time
 import logging
-import random
 from PIL import ImageDraw
 from contextlib import contextmanager, nullcontext
 
 import pwnagotchi
-import pwnagotchi.utils as utils
-import pwnagotchi.plugins as plugins
+from pwnagotchi import utils
+from pwnagotchi import plugins
 from pwnagotchi.voice import Voice
 
-import pwnagotchi.ui.web as web
-import pwnagotchi.ui.fonts as fonts
-import pwnagotchi.ui.faces as faces
+from pwnagotchi.ui import web, fonts, faces
 from pwnagotchi.ui.components import *
 from pwnagotchi.ui.state import State
 
@@ -22,7 +19,7 @@ BLACK = 0x00
 ROOT = None
 
 
-class View(object):
+class View:
     def __init__(self, config, impl, state=None):
         global ROOT
 
@@ -157,7 +154,6 @@ class View(object):
         self.set('aps', "%d" % last_session.associated)
         self.set('shakes', '%d (%s)' % (last_session.handshakes, \
                                         utils.total_unique_handshakes(self._config['bettercap']['handshakes'])))
-        self.set_closest_peer(last_session.last_peer, last_session.peers)
         self.update()
 
     def is_normal(self):
@@ -181,57 +177,6 @@ class View(object):
     def on_normal(self):
         self.set('face', faces.AWAKE)
         self.set('status', self._voice.on_normal())
-        self.update()
-
-    def set_closest_peer(self, peer, num_total):
-        if peer is None:
-            self.set('friend_face', None)
-            self.set('friend_name', None)
-        else:
-            # ref. https://www.metageek.com/training/resources/understanding-rssi-2.html
-            if peer.rssi >= -67:
-                num_bars = 4
-            elif peer.rssi >= -70:
-                num_bars = 3
-            elif peer.rssi >= -80:
-                num_bars = 2
-            else:
-                num_bars = 1
-
-            name = '▌' * num_bars
-            name += '│' * (4 - num_bars)
-            name += ' %s %d (%d)' % (peer.name(), peer.pwnd_run(), peer.pwnd_total())
-
-            if num_total > 1:
-                if num_total > 9000:
-                    name += ' of over 9000'
-                else:
-                    name += ' of %d' % num_total
-
-            self.set('friend_face', peer.face())
-            self.set('friend_name', name)
-        self.update()
-
-    def on_new_peer(self, peer):
-        face = ''
-        # first time they met, neutral mood
-        if peer.first_encounter():
-            face = random.choice((faces.AWAKE, faces.COOL))
-        # a good friend, positive expression
-        elif peer.is_good_friend(self._config):
-            face = random.choice((faces.MOTIVATED, faces.FRIEND, faces.HAPPY))
-        # normal friend, neutral-positive
-        else:
-            face = random.choice((faces.EXCITED, faces.HAPPY, faces.SMART))
-
-        self.set('face', face)
-        self.set('status', self._voice.on_new_peer(peer))
-        self.update()
-        time.sleep(3)
-
-    def on_lost_peer(self, peer):
-        self.set('face', faces.LONELY)
-        self.set('status', self._voice.on_lost_peer(peer))
         self.update()
 
     def on_free_channel(self, channel):

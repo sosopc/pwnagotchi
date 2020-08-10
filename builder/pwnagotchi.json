@@ -78,11 +78,6 @@
     },
     {
       "type": "file",
-      "source": "data/etc/systemd/system/pwngrid-peer.service",
-      "destination": "/etc/systemd/system/pwngrid-peer.service"
-    },
-    {
-      "type": "file",
       "source": "data/etc/systemd/system/pwnagotchi.service",
       "destination": "/etc/systemd/system/pwnagotchi.service"
     },

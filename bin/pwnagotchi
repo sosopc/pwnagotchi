@@ -12,7 +12,7 @@ from pwnagotchi.plugins import cmd as plugins_cmd
 from pwnagotchi import log
 from pwnagotchi import restart
 from pwnagotchi import fs
-from pwnagotchi.utils import DottedTomlEncoder
+from pwnagotchi.utils import DottedTomlEncoder, has_internet
 
 
 def do_clear(display):
@@ -39,7 +39,7 @@ def do_manual_mode(agent):
     while True:
         display.on_manual_mode(agent.last_session)
         time.sleep(5)
-        if grid.is_connected():
+        if has_internet():
             plugins.on('internet_available', agent)
 
 
@@ -79,7 +79,7 @@ def do_auto_mode(agent):
             # affect ours ... neat ^_^
             agent.next_epoch()
 
-            if grid.is_connected():
+            if has_internet():
                 plugins.on('internet_available', agent)
 
         except Exception as e:
@@ -130,11 +130,9 @@ if __name__ == '__main__':
         print(toml.dumps(config, encoder=DottedTomlEncoder()))
         sys.exit(0)
 
-    from pwnagotchi.identity import KeyPair
     from pwnagotchi.agent import Agent
     from pwnagotchi.ui import fonts
     from pwnagotchi.ui.display import Display
-    from pwnagotchi import grid
     from pwnagotchi import plugins
 
     pwnagotchi.config = config
@@ -152,7 +150,7 @@ if __name__ == '__main__':
         do_clear(display)
         sys.exit(0)
 
-    agent = Agent(view=display, config=config, keypair=KeyPair(view=display))
+    agent = Agent(view=display, config=config)
 
     def usr1_handler(*unused):
         logging.info('Received USR1 singal. Restart process ...')

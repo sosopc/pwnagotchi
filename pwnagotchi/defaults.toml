@@ -110,8 +110,6 @@ main.plugins.led.patterns.association = "oo  oo  oo oo  oo  oo  oo"
 main.plugins.led.patterns.deauthentication = "oo  oo  oo oo  oo  oo  oo"
 main.plugins.led.patterns.handshake = "oo  oo  oo oo  oo  oo  oo"
 main.plugins.led.patterns.epoch = "oo  oo  oo oo  oo  oo  oo"
-main.plugins.led.patterns.peer_detected = "oo  oo  oo oo  oo  oo  oo"
-main.plugins.led.patterns.peer_lost = "oo  oo  oo oo  oo  oo  oo"
 
 main.plugins.logtail.enabled = false
 main.plugins.logtail.max-lines = 10000
@@ -139,7 +137,6 @@ ai.params.epsilon = 0.00001
 ai.params.verbose = 1
 ai.params.lr_schedule = "constant"
 
-personality.advertise = true
 personality.deauth = true
 personality.associate = true
 personality.channels = []
@@ -156,7 +153,6 @@ personality.max_misses_for_recon = 5
 personality.excited_num_epochs = 10
 personality.bored_num_epochs = 15
 personality.sad_num_epochs = 25
-personality.bond_encounters_factor = 20000
 
 ui.fps = 0.0
 ui.font.name = "DejaVuSansMono" # for japanese: fonts-japanese-gothic

@@ -198,7 +198,6 @@ class AutoUpdate(plugins.Plugin):
                 to_install = []
                 to_check = [
                     ('bettercap/bettercap', parse_version('bettercap -version'), True, 'bettercap'),
-                    ('evilsocket/pwngrid', parse_version('pwngrid -version'), True, 'pwngrid-peer'),
                     ('dadav/pwnagotchi', pwnagotchi.__version__, False, 'pwnagotchi')
                 ]
 

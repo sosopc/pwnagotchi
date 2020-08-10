@@ -17,8 +17,6 @@ def describe(extended=False):
                             histogram_size +
                             # clients per channel
                             histogram_size +
-                            # peers per channel
-                            histogram_size +
                             # duration
                             1 +
                             # inactive
@@ -45,8 +43,6 @@ def featurize(state, step):
         state['aps_histogram'],
         # clients per channel
         state['sta_histogram'],
-        # peers per channel
-        state['peers_histogram'],
         # duration
         [np.clip(state['duration_secs'] / MAX_EPOCH_DURATION, 0.0, 1.0)],
         # inactive

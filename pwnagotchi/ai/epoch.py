@@ -41,12 +41,6 @@ class Epoch(object):
         self.num_hops = 0
         # number of seconds sleeping
         self.num_slept = 0
-        # number of peers seen during this epoch
-        self.num_peers = 0
-        # cumulative bond factor
-        self.tot_bond_factor = 0.0  # cum_bond_factor sounded really bad ...
-        # average bond factor
-        self.avg_bond_factor = 0.0
         # any activity at all during this epoch?
         self.any_activity = False
         # when the current epoch started
@@ -59,7 +53,6 @@ class Epoch(object):
         self._observation = {
             'aps_histogram': [0.0] * wifi.NumChannels,
             'sta_histogram': [0.0] * wifi.NumChannels,
-            'peers_histogram': [0.0] * wifi.NumChannels
         }
         self._observation_ready = threading.Event()
         self._epoch_data = {}
@@ -77,26 +70,17 @@ class Epoch(object):
     def data(self):
         return self._epoch_data
 
-    def observe(self, aps, peers):
+    def observe(self, aps):
         num_aps = len(aps)
         if num_aps == 0:
             self.blind_for += 1
         else:
             self.blind_for = 0
 
-        bond_unit_scale = self.config['personality']['bond_encounters_factor']
-
-        self.num_peers = len(peers)
-        num_peers = self.num_peers + 1e-10  # avoid division by 0
-
-        self.tot_bond_factor = sum((peer.encounters for peer in peers)) / bond_unit_scale
-        self.avg_bond_factor = self.tot_bond_factor / num_peers
-
         num_aps = len(aps) + 1e-10
         num_sta = sum(len(ap['clients']) for ap in aps) + 1e-10
         aps_per_chan = [0.0] * wifi.NumChannels
         sta_per_chan = [0.0] * wifi.NumChannels
-        peers_per_chan = [0.0] * wifi.NumChannels
 
         for ap in aps:
             ch_idx = ap['channel'] - 1
@@ -106,22 +90,13 @@ class Epoch(object):
             except IndexError:
                 logging.error("got data on channel %d, we can store %d channels" % (ap['channel'], wifi.NumChannels))
 
-        for peer in peers:
-            try:
-                peers_per_chan[peer.last_channel - 1] += 1.0
-            except IndexError:
-                logging.error(
-                    "got peer data on channel %d, we can store %d channels" % (peer.last_channel, wifi.NumChannels))
-
         # normalize
         aps_per_chan = [e / num_aps for e in aps_per_chan]
         sta_per_chan = [e / num_sta for e in sta_per_chan]
-        peers_per_chan = [e / num_peers for e in peers_per_chan]
 
         self._observation = {
             'aps_histogram': aps_per_chan,
             'sta_histogram': sta_per_chan,
-            'peers_histogram': peers_per_chan
         }
         self._observation_ready.set()
 
@@ -194,7 +169,6 @@ class Epoch(object):
             'bored_for_epochs': self.bored_for,
             'missed_interactions': self.num_missed,
             'num_hops': self.num_hops,
-            'num_peers': self.num_peers,
             'tot_bond': self.tot_bond_factor,
             'avg_bond': self.avg_bond_factor,
             'num_deauths': self.num_deauths,
@@ -208,8 +182,8 @@ class Epoch(object):
         self._epoch_data['reward'] = self._reward(self.epoch + 1, self._epoch_data)
         self._epoch_data_ready.set()
 
-        logging.info("[epoch %d] duration=%s slept_for=%s blind=%d sad=%d bored=%d inactive=%d active=%d peers=%d tot_bond=%.2f "
-                     "avg_bond=%.2f hops=%d missed=%d deauths=%d assocs=%d handshakes=%d cpu=%d%% mem=%d%% "
+        logging.info("[epoch %d] duration=%s slept_for=%s blind=%d sad=%d bored=%d inactive=%d active=%d "
+                     "hops=%d missed=%d deauths=%d assocs=%d handshakes=%d cpu=%d%% mem=%d%% "
                      "temperature=%dC reward=%s" % (
                          self.epoch,
                          utils.secs_to_hhmmss(self.epoch_duration),
@@ -219,9 +193,6 @@ class Epoch(object):
                          self.bored_for,
                          self.inactive_for,
                          self.active_for,
-                         self.num_peers,
-                         self.tot_bond_factor,
-                         self.avg_bond_factor,
                          self.num_hops,
                          self.num_missed,
                          self.num_deauths,
@@ -236,9 +207,6 @@ class Epoch(object):
         self.epoch_started = now
         self.did_deauth = False
         self.num_deauths = 0
-        self.num_peers = 0
-        self.tot_bond_factor = 0.0
-        self.avg_bond_factor = 0.0
         self.did_associate = False
         self.num_assocs = 0
         self.num_missed = 0

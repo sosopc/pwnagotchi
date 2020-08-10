@@ -39,7 +39,6 @@ FILES_TO_BACKUP="/root/brain.nn \
   /root/.bashrc \
   /root/.profile \
   /root/handshakes \
-  /root/peers \
   /etc/pwnagotchi/ \
   /etc/ssh/ \
   /var/log/pwnagotchi.log \
