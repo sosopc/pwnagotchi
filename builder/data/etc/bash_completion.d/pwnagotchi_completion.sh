@@ -4,7 +4,7 @@ _show_complete()
 {
     local cur opts all_options opt_line
     all_options="
-pwnagotchi -h --help -C --config -U --user-config --manual --skip-session --clear --debug --version --print-config {plugins}
+pwnagotchi -h --help -C --config -U --user-config --manual --skip-session --clear --debug --no-websocket --version --print-config {plugins}
 pwnagotchi plugins -h --help {list,install,edit,enable,disable,uninstall,update,upgrade}
 pwnagotchi plugins list -h --help
 pwnagotchi plugins install -h --help

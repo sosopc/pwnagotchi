@@ -222,6 +222,8 @@ def setup_logging(args, config):
         requests_log = logging.getLogger("requests")
         requests_log.addHandler(logging.NullHandler())
         requests_log.prpagate = False
+    elif args.no_websocket:
+        logging.getLogger("websockets").disabled = True
 
 
 def log_rotation(filename, cfg):
