@@ -4,6 +4,7 @@ import glob
 import os
 import time
 import subprocess
+import socket
 
 import json
 import shutil
@@ -62,6 +63,23 @@ class DottedTomlEncoder(TomlEncoder):
                     retstr += (pre + qsection + " = " +
                                 str(self.dump_value(value)) + '\n')
         return (retstr, self._dict())
+
+
+def has_internet():
+    """
+    Checks if internet is available
+    """
+    try:
+        # check DNS
+        host = socket.gethostbyname('github.com')
+        if host:
+            # check connectivity itself
+            socket.create_connection((host, 443), timeout=30)
+            return True
+    except:
+        pass
+    return False
+
 
 def analyze_plugin(filename):
     """
