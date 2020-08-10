@@ -48,8 +48,9 @@ def load(config, agent, epoch, from_disk=True):
             try:
                 a2c.load(config['path'], env)
             except AssertionError as as_err:
+                from fnmatch import fnmatch
                 # Sometimes the model breaks...
-                if 'same action space' not in str(as_err):
+                if not fnmatch(str(as_err), 'same * space'):
                     raise as_err
                 else:
                     logging.warning("[ai] Model could not be loaded. Using new model.")
