@@ -168,8 +168,6 @@ class Epoch(object):
             'bored_for_epochs': self.bored_for,
             'missed_interactions': self.num_missed,
             'num_hops': self.num_hops,
-            'tot_bond': self.tot_bond_factor,
-            'avg_bond': self.avg_bond_factor,
             'num_deauths': self.num_deauths,
             'num_associations': self.num_assocs,
             'num_handshakes': self.num_shakes,
