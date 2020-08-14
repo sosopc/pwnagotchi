@@ -6,7 +6,7 @@ import glob
 import shutil
 from fnmatch import fnmatch
 from pwnagotchi.utils import download_file, unzip, save_config, parse_version,\
-    md5, pip_install, analyze_plugin
+    md5, pip_install, analyze_plugin, has_internet
 from pwnagotchi.plugins import default_path
 
 
@@ -176,7 +176,7 @@ def upgrade(args, config, pattern='*'):
             if deps:
                 for d in deps:
                     if not pip_install(d):
-                        logging.error('Dependency "%s" not found'.format(d))
+                        logging.error('Dependency "%s" not found', d)
                         return 1
 
         if '__assets__' in available_plugin_data:
@@ -186,6 +186,16 @@ def upgrade(args, config, pattern='*'):
                     assets = [assets]
 
                 for a in assets:
+                    if a.startswith('https://'):
+                        dst = os.path.join(os.path.dirname(installed[plugin]), os.path.basename(a))
+                        if not os.path.exists(dst) and not has_internet():
+                            logging.error('Could not download asset %s', a)
+                            return 1
+                        logging.info('Downloading asset: %s', os.path.basename(a))
+                        download_file(a, dst)
+                        continue
+
+
                     for f in glob.glob(a):
                         dst = os.path.join(os.path.dirname(installed[plugin]), os.path.basename(f))
                         logging.info('Copy asset: %s', os.path.basename(f))
@@ -353,7 +363,7 @@ def install(args, config):
         if deps:
             for d in deps:
                 if not pip_install(d):
-                    logging.error('Dependency "%s" not found'.format(d))
+                    logging.error('Dependency "%s" not found', d)
                     return 1
 
     os.makedirs(install_path, exist_ok=True)
@@ -365,6 +375,15 @@ def install(args, config):
                 assets = [assets]
 
             for a in assets:
+                if a.startswith('https://'):
+                    dst = os.path.join(install_path, os.path.basename(a))
+                    if not os.path.exists(dst) and not has_internet():
+                        logging.error('Could not download asset %s', a)
+                        return 1
+                    logging.info('Downloading asset: %s', os.path.basename(a))
+                    download_file(a, dst)
+                    continue
+
                 for f in glob.glob(a):
                     dst = os.path.join(install_path, os.path.basename(f))
                     logging.info('Copy asset: %s', os.path.basename(f))
