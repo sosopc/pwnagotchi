@@ -179,10 +179,23 @@ def upgrade(args, config, pattern='*'):
                         logging.error('Dependency "%s" not found'.format(d))
                         return 1
 
+        if '__assets__' in available_plugin_data:
+            assets = available_plugin_data['__assets__']
+            if assets:
+                if not isinstance(assets, list):
+                    assets = [assets]
+
+                for a in assets:
+                    for f in glob.glob(a):
+                        dst = os.path.join(os.path.dirname(installed[plugin]), os.path.basename(f))
+                        logging.info('Copy asset: %s', os.path.basename(f))
+                        shutil.copyfile(f, dst)
+
+
         shutil.copyfile(available[plugin], installed[plugin])
 
         # maybe has config
-        for conf in glob.glob(available[plugin].replace('.py', '.y?ml')):
+        for conf in glob.glob(available[plugin].replace('.py', '.[yt][oa]?ml')):
             dst = os.path.join(os.path.dirname(installed[plugin]), os.path.basename(conf))
             if os.path.exists(dst) and md5(dst) != md5(conf):
                 # backup
@@ -290,7 +303,23 @@ def uninstall(args, config):
     if plugin_name not in installed:
         logging.error('Plugin %s is not installed.', plugin_name)
         return 1
+
+    plugin_info = analyze_plugin(installed[plugin_name])
+
+    if '__assets__' in plugin_info:
+        assets = plugin_info['__assets__']
+        if assets:
+            if not isinstance(assets, list):
+                assets = [assets]
+
+            for a in assets:
+                for f in glob.glob(a):
+                    logging.info('Delete asset: %s', os.path.basename(f))
+                    os.remove(f)
+
     os.remove(installed[plugin_name])
+    # but keep config
+
     return 0
 
 
@@ -328,6 +357,19 @@ def install(args, config):
                     return 1
 
     os.makedirs(install_path, exist_ok=True)
+
+    if '__assets__' in plugin_info:
+        assets = plugin_info['__assets__']
+        if assets:
+            if not isinstance(assets, list):
+                assets = [assets]
+
+            for a in assets:
+                for f in glob.glob(a):
+                    dst = os.path.join(install_path, os.path.basename(f))
+                    logging.info('Copy asset: %s', os.path.basename(f))
+                    shutil.copyfile(f, dst)
+
     shutil.copyfile(available[plugin_name], os.path.join(install_path, os.path.basename(available[plugin_name])))
 
     # maybe has config

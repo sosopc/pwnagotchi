@@ -1,13 +1,3 @@
-import pwnagotchi.plugins as plugins
-import logging
-import os
-import json
-import re
-import datetime
-from flask import Response
-from functools import lru_cache
-from dateutil.parser import parse
-
 '''
     webgpsmap shows existing position data stored in your /handshakes/ directory
 
@@ -21,13 +11,23 @@ from dateutil.parser import parse
         you can save the html-map as one file for offline use or host on your own webspace with "/plugins/webgpsmap/offlinemap"
 
 '''
+import logging
+import os
+import json
+import re
+from pwnagotchi import plugins
+from flask import Response
+from functools import lru_cache
+from dateutil.parser import parse
+
 
 class Webgpsmap(plugins.Plugin):
+    __name__ = 'webgpsmap'
     __author__ = 'https://github.com/xenDE and https://github.com/dadav'
     __version__ = '1.4.0'
-    __name__ = 'webgpsmap'
     __license__ = 'GPL3'
     __description__ = 'a plugin for pwnagotchi that shows a openstreetmap with positions of ap-handshakes in your webbrowser'
+    __assets__ = ['webgpsmap.html']
 
     ALREADY_SENT = list()
     SKIP = list()
