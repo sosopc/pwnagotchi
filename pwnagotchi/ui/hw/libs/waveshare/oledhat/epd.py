@@ -7,7 +7,7 @@ EPD_HEIGHT      = 128
 
 disp = SH1106.SH1106()
 
-class EPD(object):
+class EPD:
 
     def __init__(self):
         self.reset_pin = config.RST_PIN

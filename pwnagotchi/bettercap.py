@@ -20,7 +20,7 @@ def decode(r, verbose_errors=True):
         return r.text
 
 
-class Client(object):
+class Client:
     def __init__(self, hostname='localhost', scheme='http', port=8081, username='user', password='pass'):
         self.hostname = hostname
         self.scheme = scheme

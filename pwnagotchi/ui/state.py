@@ -1,7 +1,7 @@
 from threading import Lock
 
 
-class State(object):
+class State:
     def __init__(self, state={}):
         self._state = state
         self._lock = Lock()

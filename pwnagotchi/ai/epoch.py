@@ -8,7 +8,7 @@ from pwnagotchi import wifi, utils
 from pwnagotchi.ai.reward import RewardFunction
 
 
-class Epoch(object):
+class Epoch:
     def __init__(self, config):
         self.epoch = 0
         self.config = config

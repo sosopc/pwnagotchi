@@ -2,7 +2,7 @@ from PIL import Image
 from textwrap import TextWrapper
 
 
-class Widget(object):
+class Widget:
     def __init__(self, xy, color=0):
         self.xy = xy
         self.color = color

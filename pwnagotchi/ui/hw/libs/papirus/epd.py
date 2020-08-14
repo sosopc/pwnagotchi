@@ -35,7 +35,7 @@ class EPDError(Exception):
         return repr(self.value)
 
 
-class EPD(object):
+class EPD:
 
     """EPD E-Ink interface
 

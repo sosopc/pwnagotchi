@@ -2,7 +2,7 @@ from . import ST7789
 from . import config
 
 
-class EPD(object):
+class EPD:
     def __init__(self):
         self.reset_pin = config.RST_PIN
         self.dc_pin = config.DC_PIN

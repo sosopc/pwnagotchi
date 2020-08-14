@@ -12,7 +12,7 @@ from . import config
 from . import LCD_1in44
 from PIL import ImageOps
 
-class EPD(object):
+class EPD:
     def __init__(self):
         self.width = 128
         self.height = 128

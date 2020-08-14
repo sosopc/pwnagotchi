@@ -5,7 +5,7 @@ from pwnagotchi.ai.epoch import Epoch
 
 
 # basic mood system
-class Automata(object):
+class Automata:
     def __init__(self, config, view):
         self._config = config
         self._view = view

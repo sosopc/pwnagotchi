@@ -502,7 +502,7 @@ def extract_from_pcap(path, fields):
 
     return results
 
-class StatusFile(object):
+class StatusFile:
     def __init__(self, path, data_format='raw'):
         self._path = path
         self._updated = None

@@ -1,7 +1,7 @@
 import pwnagotchi.ui.fonts as fonts
 
 
-class DisplayImpl(object):
+class DisplayImpl:
     def __init__(self, config, name):
         self.name = name
         self.config = config['ui']['display']

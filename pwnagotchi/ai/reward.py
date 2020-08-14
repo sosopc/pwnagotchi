@@ -4,7 +4,7 @@ range = (-.7, 1.02)
 fuck_zero = 1e-20
 
 
-class RewardFunction(object):
+class RewardFunction:
     def __call__(self, epoch_n, state):
         tot_epochs = epoch_n + fuck_zero
         tot_interactions = max(state['num_deauths'] + state['num_associations'], state['num_handshakes']) + fuck_zero

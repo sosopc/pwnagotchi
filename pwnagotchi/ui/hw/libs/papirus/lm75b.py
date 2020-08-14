@@ -17,7 +17,7 @@ LM75B_TOS_REGISTER        = 3
 
 LM75B_CONF_NORMAL         = 0
 
-class LM75B(object):
+class LM75B:
     def __init__(self, address=LM75B_ADDRESS, busnum=1):
         self._address = address
         self._bus = smbus.SMBus(busnum)

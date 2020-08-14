@@ -14,7 +14,7 @@ from file_read_backwards import FileReadBackwards
 LAST_SESSION_FILE = '/root/.pwnagotchi-last-session'
 
 
-class LastSession(object):
+class LastSession:
     EPOCH_TOKEN = '[epoch '
     EPOCH_PARSER = re.compile(r'^.+\[epoch (\d+)\] (.+)')
     EPOCH_DATA_PARSER = re.compile(r'([a-z_]+)=([^\s]+)')

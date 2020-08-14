@@ -6,11 +6,11 @@ import os
 import json
 import logging
 
-import pwnagotchi.plugins as plugins
-import pwnagotchi.ai as ai
+from pwnagotchi import plugins
+from pwnagotchi import ai
 
 
-class Stats(object):
+class Stats:
     def __init__(self, path, events_receiver):
         self._lock = threading.Lock()
         self._receiver = events_receiver
@@ -83,7 +83,7 @@ class Stats(object):
             os.replace(temp, self.path)
 
 
-class AsyncTrainer(object):
+class AsyncTrainer:
     def __init__(self, config):
         self._config = config
         self._model = None
