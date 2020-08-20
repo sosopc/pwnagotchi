@@ -19,12 +19,6 @@ main.whitelist = [
 ]
 main.filter = ""
 
-main.plugins.grid.enabled = true
-main.plugins.grid.report = false
-main.plugins.grid.exclude = [
-  "YourHomeNetworkHere"
-]
-
 main.plugins.auto-update.enabled = true
 main.plugins.auto-update.install = true
 main.plugins.auto-update.interval = 1

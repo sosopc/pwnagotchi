@@ -115,7 +115,6 @@ class Agent(Client, Automata, AsyncTrainer):
             logging.debug("starting wifi module ...")
             self.start_module('wifi.recon')
 
-
     def _wait_bettercap(self):
         while True:
             try:
@@ -163,8 +162,8 @@ class Agent(Client, Automata, AsyncTrainer):
 
     def _filter_included(self, ap):
         return self._filter is None or \
-               self._filter.match(ap['hostname']) is not None or \
-               self._filter.match(ap['mac']) is not None
+            self._filter.match(ap['hostname']) is not None or \
+            self._filter.match(ap['mac']) is not None
 
     def set_access_points(self, aps):
         self._access_points = aps
@@ -295,14 +294,12 @@ class Agent(Client, Automata, AsyncTrainer):
                 if delete:
                     logging.info("deleting %s", RECOVERY_DATA_FILE)
                     os.unlink(RECOVERY_DATA_FILE)
-        except:
+        except Exception:
             if not no_exceptions:
                 raise
 
-
     def start_session_fetcher(self):
         _thread.start_new_thread(self._fetch_stats, ())
-
 
     def _fetch_stats(self):
         while True:
@@ -335,10 +332,10 @@ class Agent(Client, Automata, AsyncTrainer):
                         'hostname'] != '<hidden>' else ap_mac
                     logging.warning(
                         "!!! captured new handshake on channel %d, %d dBm: %s (%s) -> %s [%s (%s)] !!!",
-                            ap['channel'],
-                            ap['rssi'],
-                            sta['mac'], sta['vendor'],
-                            ap['hostname'], ap['mac'], ap['vendor'])
+                        ap['channel'],
+                        ap['rssi'],
+                        sta['mac'], sta['vendor'],
+                        ap['hostname'], ap['mac'], ap['vendor'])
                     plugins.on('handshake', self, filename, ap, sta)
                 found_handshake = True
             self._update_handshakes(1 if found_handshake else 0)
@@ -358,7 +355,6 @@ class Agent(Client, Automata, AsyncTrainer):
     def start_event_polling(self):
         # start a thread and pass in the mainloop
         _thread.start_new_thread(self._event_poller, (asyncio.get_event_loop(),))
-
 
     def is_module_running(self, module):
         s = self.session()
@@ -402,7 +398,7 @@ class Agent(Client, Automata, AsyncTrainer):
 
             try:
                 logging.info("sending association frame to %s (%s %s) on channel %d [%d clients], %d dBm...",
-                    ap['hostname'], ap['mac'], ap['vendor'], ap['channel'], len(ap['clients']), ap['rssi'])
+                             ap['hostname'], ap['mac'], ap['vendor'], ap['channel'], len(ap['clients']), ap['rssi'])
                 self.run('wifi.assoc %s' % ap['mac'])
                 self._epoch.track(assoc=True)
             except Exception as e:
@@ -423,7 +419,7 @@ class Agent(Client, Automata, AsyncTrainer):
 
             try:
                 logging.info("deauthing %s (%s) from %s (%s %s) on channel %d, %d dBm ...",
-                    sta['mac'], sta['vendor'], ap['hostname'], ap['mac'], ap['vendor'], ap['channel'], ap['rssi'])
+                             sta['mac'], sta['vendor'], ap['hostname'], ap['mac'], ap['vendor'], ap['channel'], ap['rssi'])
                 self.run('wifi.deauth %s' % sta['mac'])
                 self._epoch.track(deauth=True)
             except Exception as e:
