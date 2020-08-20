@@ -160,6 +160,7 @@
     async: 1200
     poll: 0
     register: pip_cache
+    changed_when: "'Successfully downloaded' in pip_cache.stdout"
 
   - name: upgrade apt distro
     apt:
