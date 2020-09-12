@@ -38,7 +38,7 @@ class State:
     def changes(self, ignore=()):
         with self._lock:
             changes = []
-            for change in self._changes.keys():
+            for change in self._changes:
                 if change not in ignore:
                     changes.append(change)
             return changes

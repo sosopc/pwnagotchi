@@ -134,6 +134,7 @@ TEMPLATE = """
         loadData('/plugins/session-stats/duration' + '?session=' + session, 'chart_duration', 'Sleeping', true)
         loadData('/plugins/session-stats/reward' + '?session=' + session, 'chart_reward', 'Reward', false)
         loadData('/plugins/session-stats/epoch' + '?session=' + session, 'chart_epoch', 'Epochs', false)
+        loadData('/plugins/session-stats/ui' + '?session=' + session, 'chart_ui', 'Ui Refreshs', false)
     }
 
 
@@ -153,6 +154,7 @@ TEMPLATE = """
     <div id="chart_duration" class="chart"></div>
     <div id="chart_reward" class="chart"></div>
     <div id="chart_epoch" class="chart"></div>
+    <div id="chart_ui" class="chart"></div>
 {% endblock %}
 """
 
@@ -177,7 +179,7 @@ class GhettoClock:
 
 class SessionStats(plugins.Plugin):
     __author__ = '33197631+dadav@users.noreply.github.com'
-    __version__ = '0.1.0'
+    __version__ = '0.2.0'
     __license__ = 'GPL3'
     __description__ = 'This plugin displays stats of the current session.'
 
@@ -186,6 +188,7 @@ class SessionStats(plugins.Plugin):
         self.options = dict()
         self.stats = dict()
         self.clock = GhettoClock()
+        self.ui_refreshs = 0
 
     def on_loaded(self):
         """
@@ -200,13 +203,23 @@ class SessionStats(plugins.Plugin):
                                   data_format='json')
         logging.info("Session-stats plugin loaded.")
 
+    def on_ui_update(self, ui):
+        """
+        Count the ui updates
+        """
+        with self.lock:
+            self.ui_refreshs += 1
+
     def on_epoch(self, agent, epoch, epoch_data):
         """
         Save the epoch_data to self.stats
         """
         with self.lock:
+            epoch_data['ui_refreshs'] = self.ui_refreshs
             self.stats[self.clock.now().strftime("%H:%M:%S")] = epoch_data
             self.session.update(data={'data': self.stats})
+            # reset
+            self.ui_refreshs = 0
 
     @staticmethod
     def extract_key_values(data, subkeys):
@@ -214,7 +227,7 @@ class SessionStats(plugins.Plugin):
         result['values'] = list()
         result['labels'] = subkeys
         for plot_key in subkeys:
-            v = [ [ts,d[plot_key]] for ts, d in data.items()]
+            v = [[ts,d[plot_key]] for ts, d in data.items()]
             result['values'].append(v)
         return result
 
@@ -226,14 +239,14 @@ class SessionStats(plugins.Plugin):
 
         if path == "os":
             extract_keys = ['cpu_load','mem_usage',]
+        elif path == "ui":
+            extract_keys = ['ui_refreshs']
         elif path == "temp":
             extract_keys = ['temperature']
         elif path == "wifi":
             extract_keys = [
                 'missed_interactions',
                 'num_hops',
-                'tot_bond',
-                'avg_bond',
                 'num_deauths',
                 'num_associations',
                 'num_handshakes',

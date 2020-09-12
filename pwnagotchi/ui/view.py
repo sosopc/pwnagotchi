@@ -322,7 +322,8 @@ class View:
 
             state = self._state
             changes = state.changes(ignore=self._ignore_changes)
-            if force or len(changes):
+            if force or changes:
+                logging.debug("Update screen because %s", 'it was forced.' if force else f"{changes} triggered it.")
                 self._canvas = Image.new('1', (self._width, self._height), WHITE)
                 drawer = ImageDraw.Draw(self._canvas)
 
