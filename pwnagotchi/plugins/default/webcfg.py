@@ -1,6 +1,5 @@
 import logging
 import json
-import toml
 import _thread
 from pwnagotchi import restart, plugins
 from pwnagotchi.utils import save_config
@@ -457,17 +456,22 @@ INDEX = """
 {% endblock %}
 """
 
+
 def serializer(obj):
     if isinstance(obj, set):
         return list(obj)
     raise TypeError
 
+
 class WebConfig(plugins.Plugin):
     __author__ = '33197631+dadav@users.noreply.github.com'
-    __version__ = '1.0.0'
+    __version__ = '2.0.0'
     __license__ = 'GPL3'
     __description__ = 'This plugin allows the user to make runtime changes.'
     __dependencies__ = ['flask']
+    __defaults__ = {
+        'enabled': True,
+    }
 
     def __init__(self):
         self.ready = False
@@ -487,8 +491,7 @@ class WebConfig(plugins.Plugin):
         """
         Gets called when the plugin gets loaded
         """
-        logging.info("webcfg: Plugin loaded.")
-
+        logging.info('[webcfg] Plugin loaded.')
 
     def on_webhook(self, path, request):
         """
@@ -508,10 +511,10 @@ class WebConfig(plugins.Plugin):
         elif request.method == "POST":
             if path == "save-config":
                 try:
-                    save_config(request.get_json(), '/etc/pwnagotchi/config.toml') # test
+                    save_config(request.get_json(), '/etc/pwnagotchi/config.toml')  # test
                     _thread.start_new_thread(restart, (self.mode,))
                     return "success"
                 except Exception as ex:
-                    logging.error(ex)
+                    logging.error('[webcfg] %s', ex)
                     return "config error", 500
         abort(404)

@@ -5,13 +5,13 @@ import threading
 import importlib
 import importlib.util
 import logging
-from pwnagotchi.utils import analyze_plugin
+from pwnagotchi.utils import analyze_plugin, merge_config
 
 
 default_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), "default")
-loaded = {}
-database = {}
-locks = {}
+loaded = dict()
+database = dict()
+locks = dict()
 
 
 class Plugin:
@@ -45,7 +45,7 @@ def toggle_plugin(name, enable=True):
     global loaded, database
 
     if pwnagotchi.config:
-        if not name in pwnagotchi.config['main']['plugins']:
+        if name not in pwnagotchi.config['main']['plugins']:
             pwnagotchi.config['main']['plugins'][name] = dict()
         pwnagotchi.config['main']['plugins'][name]['enabled'] = enable
         save_config(pwnagotchi.config, '/etc/pwnagotchi/config.toml')
@@ -59,11 +59,16 @@ def toggle_plugin(name, enable=True):
 
     if enable and name in database and name not in loaded:
         load_from_file(database[name]['filename'])
+
         if name in loaded and pwnagotchi.config and name in pwnagotchi.config['main']['plugins']:
-            loaded[name].options = pwnagotchi.config['main']['plugins'][name]
+            defaults = database[name]['__defaults__'] if '__defaults__' in database[name] else dict()
+            loaded[name].options = merge_config(pwnagotchi.config['main']['plugins'][name], defaults)
+
         one(name, 'loaded')
+
         if pwnagotchi.config:
             one(name, 'config_changed', pwnagotchi.config)
+
         one(name, 'ui_setup', view.ROOT)
         one(name, 'ready', view.ROOT._agent)
         return True
@@ -112,7 +117,7 @@ def load_from_file(filename):
     return plugin_name, instance
 
 
-def load_from_path(path, enabled=()):
+def load_from_path(path, enabled=list()):
     global loaded, database
     logging.debug("loading plugins from %s - enabled: %s" % (path, enabled))
     for filename in glob.glob(os.path.join(path, "*.py")):
@@ -144,7 +149,8 @@ def load(config):
 
     # propagate options
     for name, plugin in loaded.items():
-        plugin.options = config['main']['plugins'][name]
+        defaults = database[name]['__defaults__'] if '__defaults__' in database[name] else dict()
+        plugin.options = merge_config(config['main']['plugins'][name], defaults)
 
     on('loaded')
     on('config_changed', config)

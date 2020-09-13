@@ -253,9 +253,13 @@ TEMPLATE = """
 
 class Logtail(plugins.Plugin):
     __author__ = '33197631+dadav@users.noreply.github.com'
-    __version__ = '0.1.0'
+    __version__ = '1.0.0'
     __license__ = 'GPL3'
     __description__ = 'This plugin tails the logfile.'
+    __defaults__ = {
+        'enabled': False,
+        'max-lines': 10_000,
+    }
 
     def __init__(self):
         self.lock = threading.Lock()
@@ -271,7 +275,7 @@ class Logtail(plugins.Plugin):
         """
         Gets called when the plugin gets loaded
         """
-        logging.info("Logtail plugin loaded.")
+        logging.info("[logtail] plugin loaded.")
 
     def on_before_shutdown(self):
         self.shutdown = True

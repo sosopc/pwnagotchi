@@ -9,22 +9,27 @@ from pwnagotchi.ui.view import BLACK
 
 
 class GPS(plugins.Plugin):
-    __author__ = "evilsocket@gmail.com"
-    __version__ = "1.0.0"
-    __license__ = "GPL3"
-    __description__ = "Save GPS coordinates whenever an handshake is captured."
+    __author__ = 'evilsocket@gmail.com'
+    __version__ = '2.0.0'
+    __license__ = 'GPL3'
+    __description__ = 'Save GPS coordinates whenever an handshake is captured.'
+    __defaults__ = {
+        'enabled': False,
+        'speed': 19200,
+        'device': '/dev/ttyUSB0',
+    }
 
     def __init__(self):
         self.running = False
         self.coordinates = None
 
     def on_loaded(self):
-        logging.info(f"gps plugin loaded for {self.options['device']}")
+        logging.info(f"[gps] plugin loaded for {self.options['device']}")
 
     def on_ready(self, agent):
         if os.path.exists(self.options["device"]):
             logging.info(
-                f"enabling bettercap's gps module for {self.options['device']}"
+                f"[gps] enabling bettercap's gps module for {self.options['device']}"
             )
             try:
                 agent.run("gps off")
@@ -36,7 +41,7 @@ class GPS(plugins.Plugin):
             agent.run("gps on")
             self.running = True
         else:
-            logging.warning("no GPS detected")
+            logging.warning("[gps] no GPS detected")
 
     def on_handshake(self, agent, filename, access_point, client_station):
         if self.running:
@@ -48,11 +53,11 @@ class GPS(plugins.Plugin):
                 # avoid 0.000... measurements
                 self.coordinates["Latitude"], self.coordinates["Longitude"]
             ]):
-                logging.info(f"saving GPS to {gps_filename} ({self.coordinates})")
+                logging.info(f"[gps] saving GPS to {gps_filename} ({self.coordinates})")
                 with open(gps_filename, "w+t") as fp:
                     json.dump(self.coordinates, fp)
             else:
-                logging.info("not saving GPS. Couldn't find location.")
+                logging.info("[gps] not saving GPS. Couldn't find location.")
 
     def on_ui_setup(self, ui):
         # add coordinates for other displays

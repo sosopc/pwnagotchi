@@ -1,16 +1,43 @@
 from threading import Event
+from pwnagotchi import plugins
+
 import _thread
 import logging
 import time
 
-import pwnagotchi.plugins as plugins
-
 
 class Led(plugins.Plugin):
     __author__ = 'evilsocket@gmail.com'
-    __version__ = '1.0.0'
+    __version__ = '2.0.0'
     __license__ = 'GPL3'
     __description__ = 'This plugin blinks the PWR led with different patterns depending on the event.'
+    __defaults__ = {
+        'enabled': True,
+        'led': 0,
+        'delay': 200,
+        'patterns': {
+            'loaded': 'oo  oo  oo oo  oo  oo  oo',
+            'updating': 'oo  oo  oo oo  oo  oo  oo',
+            'unread_inbox': 'oo  oo  oo oo  oo  oo  oo',
+            'ready': 'oo  oo  oo oo  oo  oo  oo',
+            'ai_ready': 'oo  oo  oo oo  oo  oo  oo',
+            'ai_training_start': 'oo  oo  oo oo  oo  oo  oo',
+            'ai_best_reward': 'oo  oo  oo oo  oo  oo  oo',
+            'ai_worst_reward': 'oo  oo  oo oo  oo  oo  oo',
+            'bored': 'oo  oo  oo oo  oo  oo  oo',
+            'sad': 'oo  oo  oo oo  oo  oo  oo',
+            'excited': 'oo  oo  oo oo  oo  oo  oo',
+            'lonely': 'oo  oo  oo oo  oo  oo  oo',
+            'rebooting': 'oo  oo  oo oo  oo  oo  oo',
+            'wait': 'oo  oo  oo oo  oo  oo  oo',
+            'sleep': 'oo  oo  oo oo  oo  oo  oo',
+            'wifi_update': 'oo  oo  oo oo  oo  oo  oo',
+            'association': 'oo  oo  oo oo  oo  oo  oo',
+            'deauthentication': 'oo  oo  oo oo  oo  oo  oo',
+            'handshake': 'oo  oo  oo oo  oo  oo  oo',
+            'epoch': 'oo  oo  oo oo  oo  oo  oo',
+        }
+    }
 
     def __init__(self):
         self._is_busy = False
@@ -24,7 +51,7 @@ class Led(plugins.Plugin):
         self._led_file = "/sys/class/leds/led%d/brightness" % self.options['led']
         self._delay = int(self.options['delay'])
 
-        logging.info("[led] plugin loaded for %s" % self._led_file)
+        logging.info('[led] plugin loaded for %s', self._led_file)
         self._on_event('loaded')
         _thread.start_new_thread(self._worker, ())
 
@@ -32,16 +59,16 @@ class Led(plugins.Plugin):
         if not self._is_busy:
             self._event_name = event
             self._event.set()
-            logging.debug("[led] event '%s' set", event)
+            logging.debug('[led] event \'%s\' set', event)
         else:
-            logging.debug("[led] skipping event '%s' because the worker is busy", event)
+            logging.debug('[led] skipping event \'%s\' because the worker is busy', event)
 
     def _led(self, on):
         with open(self._led_file, 'wt') as fp:
             fp.write(str(on))
 
     def _blink(self, pattern):
-        logging.debug("[led] using pattern '%s' ..." % pattern)
+        logging.debug('[led] using pattern \'%s\' ...', pattern)
         for c in pattern:
             if c == ' ':
                 self._led(1)
@@ -62,9 +89,9 @@ class Led(plugins.Plugin):
                     pattern = self.options['patterns'][self._event_name]
                     self._blink(pattern)
                 else:
-                    logging.debug("[led] no pattern defined for %s" % self._event_name)
+                    logging.debug('[led] no pattern defined for %s', self._event_name)
             except Exception as e:
-                logging.exception("[led] error while blinking")
+                logging.exception('[led] error while blinking (%s)', e)
 
             finally:
                 self._is_busy = False

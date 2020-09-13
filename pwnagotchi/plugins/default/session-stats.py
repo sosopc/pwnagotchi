@@ -2,7 +2,7 @@ import os
 import logging
 import threading
 from time import sleep
-from datetime import datetime,timedelta
+from datetime import datetime, timedelta
 from pwnagotchi import plugins
 from pwnagotchi.utils import StatusFile
 from flask import render_template_string
@@ -179,9 +179,13 @@ class GhettoClock:
 
 class SessionStats(plugins.Plugin):
     __author__ = '33197631+dadav@users.noreply.github.com'
-    __version__ = '0.2.0'
+    __version__ = '1.0.0'
     __license__ = 'GPL3'
     __description__ = 'This plugin displays stats of the current session.'
+    __defaults__ = {
+        'enabled': True,
+        'save_directory': '/var/tmp/pwnagotchi/sessions/',
+    }
 
     def __init__(self):
         self.lock = threading.Lock()
@@ -201,7 +205,7 @@ class SessionStats(plugins.Plugin):
         self.session = StatusFile(os.path.join(self.options['save_directory'],
                                                self.session_name),
                                   data_format='json')
-        logging.info("Session-stats plugin loaded.")
+        logging.info('[session-stats] plugin loaded.')
 
     def on_ui_update(self, ui):
         """
