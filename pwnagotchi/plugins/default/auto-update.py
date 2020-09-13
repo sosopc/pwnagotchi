@@ -197,7 +197,7 @@ class AutoUpdate(plugins.Plugin):
 
                 to_install = []
                 to_check = [
-                    ('bettercap/bettercap', parse_version('bettercap -version'), True, 'bettercap'),
+                    ('dadav/bettercap', parse_version('bettercap -version'), True, 'bettercap'),
                     ('dadav/pwnagotchi', pwnagotchi.__version__, False, 'pwnagotchi')
                 ]
 
