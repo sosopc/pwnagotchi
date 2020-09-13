@@ -81,6 +81,19 @@ def has_internet():
     return False
 
 
+def _ast_value(given):
+    import ast
+    if isinstance(given, ast.Constant):
+        return given.value
+    elif isinstance(given, ast.Str):
+        return given.__dict__['s']
+    elif isinstance(given, ast.List):
+        return [_ast_value(elm) for elm in given.elts]
+    elif isinstance(given, ast.Dict):
+        return {_ast_value(k): _ast_value(v) for k, v in zip(given.keys, given.values)}
+    return None
+
+
 def analyze_plugin(filename):
     """
     Analyses a plugin without actualy running the code
@@ -106,19 +119,7 @@ def analyze_plugin(filename):
             continue
 
         name = a.targets[0].id
-        value = None
-
-        if isinstance(a.value, ast.Constant):
-            value = a.value.value
-        elif isinstance(a.value, ast.Str):
-            value = a.value.__dict__['s']
-        elif isinstance(a.value, ast.List):
-            value = list()
-            for e in a.value.elts:
-                if isinstance(e, ast.Constant):
-                    value.append(e.value)
-                elif isinstance(e, ast.Str):
-                    value.append(e.__dict__['s'])
+        value = _ast_value(a.value)
 
         result[name] = value
 
