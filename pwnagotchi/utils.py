@@ -76,15 +76,17 @@ def has_internet():
             # check connectivity itself
             socket.create_connection((host, 443), timeout=30)
             return True
-    except:
+    except Exception:
         pass
     return False
 
 
 def _ast_value(given):
     import ast
-    if isinstance(given, ast.Constant):
+    if isinstance(given, ast.Constant) or isinstance(given, ast.NameConstant):
         return given.value
+    elif isinstance(given, ast.Num):
+        return given.__dict__['n']
     elif isinstance(given, ast.Str):
         return given.__dict__['s']
     elif isinstance(given, ast.List):
@@ -103,8 +105,8 @@ def analyze_plugin(filename):
     root = ast.parse(open(filename).read())
     classes = [n for n in root.body if isinstance(n, ast.ClassDef)]
     plugins = [n for n in classes
-                    if n.bases and hasattr(n.bases[0], 'attr')
-                    and n.bases[0].attr == 'Plugin']
+               if n.bases and hasattr(n.bases[0], 'attr')
+               and n.bases[0].attr == 'Plugin']
 
     # one plugin only
     assert len(plugins) == 1
@@ -138,6 +140,7 @@ def remove_whitelisted(list_of_handshakes, list_of_whitelisted_strings, valid_on
     Removes a given list of whitelisted handshakes from a path list
     """
     filtered = list()
+
     def normalize(name):
         """
         Only allow alpha/nums
@@ -159,7 +162,6 @@ def remove_whitelisted(list_of_handshakes, list_of_whitelisted_strings, valid_on
     return filtered
 
 
-
 def download_file(url, destination, chunk_size=128):
     import requests
     resp = requests.get(url)
@@ -168,6 +170,7 @@ def download_file(url, destination, chunk_size=128):
     with open(destination, 'wb') as fd:
         for chunk in resp.iter_content(chunk_size):
             fd.write(chunk)
+
 
 def unzip(file, destination, strip_dirs=0):
     os.makedirs(destination, exist_ok=True)
@@ -192,22 +195,24 @@ def merge_config(user, default):
                 user[k] = merge_config(user[k], v)
     return user
 
+
 def pip_install(package):
-    logging.debug('[pip] installing "%s"'.format(package))
+    logging.debug('[pip] installing "%s"', package)
     try:
         subprocess.check_call([sys.executable, '-m', 'pip', 'install', package],
-                            stdout=subprocess.DEVNULL,
-                            stderr=subprocess.DEVNULL)
+                              stdout=subprocess.DEVNULL,
+                              stderr=subprocess.DEVNULL)
     except subprocess.CalledProcessError as cpe:
-        logging.error('[pip] got "%s" while installing "%s"'.format(cpe, package))
+        logging.error('[pip] got "%s" while installing "%s"', cpe, package)
         return False
     return True
 
+
 def keys_to_str(data):
-    if isinstance(data,list):
+    if isinstance(data, list):
         converted_list = list()
         for item in data:
-            if isinstance(item,list) or isinstance(item,dict):
+            if isinstance(item, list) or isinstance(item, dict):
                 converted_list.append(keys_to_str(item))
             else:
                 converted_list.append(item)
@@ -222,10 +227,12 @@ def keys_to_str(data):
 
     return converted_dict
 
+
 def save_config(config, target):
     with open(target, 'wt') as fp:
         fp.write(toml.dumps(config, encoder=DottedTomlEncoder()))
     return True
+
 
 def load_config(args):
     default_config_path = os.path.dirname(args.config)
@@ -294,13 +301,13 @@ def load_config(args):
         if user_config:
             config = merge_config(user_config, config)
     except Exception as ex:
-        logging.error("There was an error processing the configuration file:\n%s ",ex)
+        logging.error("There was an error processing the configuration file:\n%s ", ex)
         sys.exit(1)
 
     # dropins
     dropin = config['main']['confd']
     if dropin and os.path.isdir(dropin):
-        dropin += '*.toml' if dropin.endswith('/') else '/*.toml' # only toml here; yaml is no more
+        dropin += '*.toml' if dropin.endswith('/') else '/*.toml'  # only toml here; yaml is no more
         for conf in glob.glob(dropin):
             with open(conf) as toml_file:
                 additional_config = toml.load(toml_file)
@@ -502,6 +509,7 @@ def extract_from_pcap(path, fields):
                 raise FieldNotFoundError("Could not find field [RSSI]")
 
     return results
+
 
 class StatusFile:
     def __init__(self, path, data_format='raw'):
