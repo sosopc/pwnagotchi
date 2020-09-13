@@ -136,7 +136,7 @@ def parse_version(cmd):
     out = subprocess.getoutput(cmd)
     for part in out.split(' '):
         part = part.replace('v', '').strip()
-        if re.search(r'^\d+\.\d+\.\d+.*$', part):
+        if re.search(r'^\d+\.\d+(\.\d+)?.*$', part):
             return part
     raise Exception('could not parse version from "%s": output=\n%s' % (cmd, out))
 
