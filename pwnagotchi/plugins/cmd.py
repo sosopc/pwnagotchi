@@ -405,15 +405,6 @@ def install(args, config):
 
     shutil.copyfile(available[plugin_name], os.path.join(install_path, os.path.basename(available[plugin_name])))
 
-    # maybe has config
-    for conf in glob.glob(available[plugin_name].replace('.py', '.y?ml')):
-        dst = os.path.join(install_path, os.path.basename(conf))
-        if os.path.exists(dst) and md5(dst) != md5(conf):
-            # backup
-            logging.info('Backing up config: %s', os.path.basename(conf))
-            shutil.move(dst, dst + '.bak')
-        shutil.copyfile(conf, dst)
-
     return 0
 
 
@@ -421,7 +412,7 @@ def _analyse_dir(path):
     results = dict()
     path += '*' if path.endswith('/') else '/*'
     for filename in glob.glob(path, recursive=True):
-        if not os.path.isfile(filename):
+        if not os.path.isfile(filename) or '.git' in filename:
             continue
         try:
             results[filename] = md5(filename)
