@@ -6,7 +6,7 @@ import glob
 import shutil
 from fnmatch import fnmatch
 from pwnagotchi.utils import download_file, unzip, save_config, parse_version,\
-    md5, pip_install, analyze_plugin, has_internet, merge_config
+    md5, pip_install, apt_install, analyze_plugin, has_internet, merge_config
 from pwnagotchi.plugins import default_path
 
 
@@ -181,9 +181,14 @@ def upgrade(args, config, pattern='*'):
 
         if '__dependencies__' in available_plugin_data:
             deps = available_plugin_data['__dependencies__']
-            if deps:
-                for d in deps:
+            if 'pip' in deps:
+                for d in deps['pip']:
                     if not pip_install(d):
+                        logging.error('Dependency "%s" not found', d)
+                        return 1
+            if 'apt' in deps:
+                for d in deps['apt']:
+                    if not apt_install(d):
                         logging.error('Dependency "%s" not found', d)
                         return 1
 
@@ -364,9 +369,14 @@ def install(args, config):
     plugin_info = analyze_plugin(available[plugin_name])
     if '__dependencies__' in plugin_info:
         deps = plugin_info['__dependencies__']
-        if deps:
-            for d in deps:
+        if 'pip' in deps:
+            for d in deps['pip']:
                 if not pip_install(d):
+                    logging.error('Dependency "%s" not found', d)
+                    return 1
+        if 'apt' in deps:
+            for d in deps['apt']:
+                if not apt_install(d):
                     logging.error('Dependency "%s" not found', d)
                     return 1
 

@@ -208,6 +208,18 @@ def pip_install(package):
     return True
 
 
+def apt_install(package):
+    logging.debug('[apt] installing "%s"', package)
+    try:
+        subprocess.check_call(['apt-get', 'install', '-y', package],
+                              stdout=subprocess.DEVNULL,
+                              stderr=subprocess.DEVNULL)
+    except subprocess.CalledProcessError as cpe:
+        logging.error('[apt] got "%s" while installing "%s"', cpe, package)
+        return False
+    return True
+
+
 def keys_to_str(data):
     if isinstance(data, list):
         converted_list = list()
