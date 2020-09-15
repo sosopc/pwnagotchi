@@ -215,15 +215,6 @@ def upgrade(args, config, pattern='*'):
 
         shutil.copyfile(available[plugin], installed[plugin])
 
-        # maybe has config
-        for conf in glob.glob(available[plugin].replace('.py', '.[yt][oa]?ml')):
-            dst = os.path.join(os.path.dirname(installed[plugin]), os.path.basename(conf))
-            if os.path.exists(dst) and md5(dst) != md5(conf):
-                # backup
-                logging.info('Backing up config: %s', os.path.basename(conf))
-                shutil.move(dst, dst + '.bak')
-            shutil.copyfile(conf, dst)
-
     return 0
 
 
