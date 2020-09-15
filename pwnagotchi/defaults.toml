@@ -86,7 +86,7 @@ ui.web.enabled = true
 ui.web.address = "0.0.0.0"
 ui.web.username = "changeme"
 ui.web.password = "changeme"
-ui.web.origin = ""
+ui.web.origin = "http://10.0.0.2"
 ui.web.port = 8080
 ui.web.on_frame = ""
 
