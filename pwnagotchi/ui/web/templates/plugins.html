@@ -11,6 +11,7 @@ Plugins
   .tooltip {
     position: relative;
     display: inline-block;
+    float: right;
   }
   .tooltip .tooltiptext {
     visibility: hidden;
@@ -61,11 +62,12 @@ $(function(){
     {% for name in database.keys() | sort %}
         <div class="plugins-box">
           <div class="tooltip">
-            <h4>
-              <a {% if name in loaded and loaded[name].on_webhook is defined %} href="/plugins/{{name}}" {% endif %}>{{name}}</a>
-            </h4>
+            <a>ⓘ</a>
             <span class="tooltiptext">{{ database[name]['__description__'] }}</span>
           </div>
+          <h4>
+            <a {% if name in loaded and loaded[name].on_webhook is defined %} href="/plugins/{{name}}" {% endif %}>{{name}}</a>
+          </h4>
           <form method="POST" action="/plugins/toggle">
             <input type="checkbox" data-role="flipswitch" name="enabled" id="flip-checkbox-{{name}}" data-on-text="Enabled" data-off-text="Disabled" data-wrapper-class="custom-size-flipswitch" {% if name in loaded %} checked {% endif %}>
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>

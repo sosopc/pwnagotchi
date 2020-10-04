@@ -61,12 +61,16 @@ class Handler:
     def index(self):
         return render_template('index.html',
                                title=pwnagotchi.name(),
-                               other_mode='AUTO' if self._agent.mode == 'manual' else 'MANU')
+                               other_mode='AUTO' if self._agent.mode == 'manual' else 'MANU',
+                               dark_theme=self._config['dark'])
 
 
     def plugins(self, name, subpath):
         if name is None:
-            return render_template('plugins.html', loaded=plugins.loaded, database=plugins.database)
+            return render_template('plugins.html',
+                                   loaded=plugins.loaded,
+                                   database=plugins.database,
+                                   dark_theme=self._config['dark'])
 
         if name == 'toggle' and request.method == 'POST':
             checked = True if 'enabled' in request.form else False
@@ -83,16 +87,22 @@ class Handler:
     # serve a message and shuts down the unit
     def shutdown(self):
         try:
-            return render_template('status.html', title=pwnagotchi.name(), go_back_after=60,
-                                   message='Shutting down ...')
+            return render_template('status.html',
+                                   title=pwnagotchi.name(),
+                                   go_back_after=60,
+                                   message='Shutting down ...',
+                                   dark_theme=self._config['dark'])
         finally:
             _thread.start_new_thread(pwnagotchi.shutdown, ())
 
     # serve a message and reboot the unit
     def reboot(self):
           try:
-              return render_template('status.html', title=pwnagotchi.name(), go_back_after=60,
-                                     message='Rebooting ...')
+              return render_template('status.html',
+                                     title=pwnagotchi.name(),
+                                     go_back_after=60,
+                                     message='Rebooting ...',
+                                     dark_theme=self._config['dark'])
           finally:
               _thread.start_new_thread(pwnagotchi.reboot, ())
 
@@ -103,8 +113,11 @@ class Handler:
             mode = 'MANU'
 
         try:
-            return render_template('status.html', title=pwnagotchi.name(), go_back_after=30,
-                                   message='Restarting in %s mode ...' % mode)
+            return render_template('status.html',
+                                   title=pwnagotchi.name(),
+                                   go_back_after=30,
+                                   message='Restarting in %s mode ...' % mode,
+                                   dark_theme=self._config['dark'])
         finally:
             _thread.start_new_thread(pwnagotchi.restart, (mode,))
 

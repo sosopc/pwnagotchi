@@ -22,7 +22,7 @@
 
 {% block body %}
 <body>
-<div data-role="page">
+  <div data-role="page" data-theme="{% if dark_theme %}b{% else %}a{% endif %}">
 
     {% if error %}
     <div id="error" class="error ui-content" data-role="popup" data-overlay-theme="a" data-theme="b">
