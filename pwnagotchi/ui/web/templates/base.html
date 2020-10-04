@@ -22,10 +22,10 @@
 
 {% block body %}
 <body>
-<div data-role="page" data-theme="a">
+<div data-role="page">
 
     {% if error %}
-    <div id="error" class="error ui-content" data-role="popup" data-overlay-theme="a">
+    <div id="error" class="error ui-content" data-role="popup" data-overlay-theme="a" data-theme="b">
         <p>{{ error }}</p>
     </div>
     <script>
@@ -41,7 +41,7 @@
     ] %}
     {% set active_page = active_page|default('inbox') %}
 
-    <div data-role="footer" data-theme="a">
+    <div data-role="footer">
         <div data-role="navbar" data-iconpos="left">
             <ul>
                 {% for href, id, icon, caption in navigation %}
