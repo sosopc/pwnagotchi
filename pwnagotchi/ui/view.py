@@ -334,7 +334,8 @@ class View:
                     lv.draw(self._canvas, drawer)
 
                 if self._config['ui']['web']['dark']:
-                    self._canvas = ImageOps.invert(self._canvas)
+                    print(self._canvas.mode)
+                    self._canvas = ImageOps.invert(self._canvas.convert('L')).convert('1')
 
                 web.update_frame(self._canvas)
 
