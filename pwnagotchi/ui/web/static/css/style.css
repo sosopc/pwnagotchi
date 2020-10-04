@@ -77,6 +77,14 @@ p.messagebody {
     padding: 0.2rem;
     border-style: groove;
     border-radius: 0.5rem;
-    background-color: lightgrey;
+    background-color: white;
     text-align: center;
+}
+
+.ui-flipswitch-active {
+  background-color: #08ca08;
+}
+
+.ui-flipswitch {
+  background-color: #ff5c5c;
 }
