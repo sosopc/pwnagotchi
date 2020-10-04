@@ -56,7 +56,6 @@ personality.bored_num_epochs = 15
 personality.sad_num_epochs = 25
 
 ui.fps = 0.0
-ui.dark = false
 ui.font.name = "DejaVuSansMono" # for japanese: fonts-japanese-gothic
 ui.font.size_offset = 0 # will be added to the font size
 
@@ -84,6 +83,7 @@ ui.faces.broken = "(☓‿‿☓)"
 ui.faces.debug = "(#__#)"
 
 ui.web.enabled = true
+ui.web.dark = false
 ui.web.address = "0.0.0.0"
 ui.web.username = "changeme"
 ui.web.password = "changeme"

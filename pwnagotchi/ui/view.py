@@ -2,7 +2,7 @@ import _thread
 from threading import Lock
 import time
 import logging
-from PIL import ImageDraw
+from PIL import ImageDraw, ImageOps
 from contextlib import contextmanager, nullcontext
 
 import pwnagotchi
@@ -332,6 +332,9 @@ class View:
 
                 for key, lv in state.items():
                     lv.draw(self._canvas, drawer)
+
+                if self.config['ui']['web']['dark']:
+                    self._canvas = ImageOps.invert(self._canvas)
 
                 web.update_frame(self._canvas)
 
