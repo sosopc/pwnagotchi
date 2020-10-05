@@ -102,7 +102,6 @@ def main():
             cool: '(⌐■_■)'
             happy: '(•‿‿•)'
             excited: '(ᵔ◡◡ᵔ)'
-            grateful: '(^‿‿^)'
             motivated: '(☼‿‿☼)'
             demotivated: '(≖__≖)'
             smart: '(✜‿‿✜)'
