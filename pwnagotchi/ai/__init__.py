@@ -50,7 +50,7 @@ def load(config, agent, epoch, from_disk=True):
             except AssertionError as as_err:
                 from fnmatch import fnmatch
                 # Sometimes the model breaks...
-                if not fnmatch(str(as_err), 'same * space'):
+                if not fnmatch(str(as_err), '* same * space as the model'):
                     raise as_err
                 else:
                     logging.warning("[ai] Model could not be loaded. Using new model.")
