@@ -7,10 +7,28 @@ import pwnagotchi.ui.fonts as fonts
 
 
 class Example(plugins.Plugin):
-    __author__ = 'evilsocket@gmail.com'
+    __author__ = 'dadav'
     __version__ = '1.0.0'
     __license__ = 'GPL3'
     __description__ = 'An example plugin for pwnagotchi that implements all the available callbacks.'
+
+    # This is the required pwnagotchi version (minimum)
+    __min_pwnagotchi_version__ = '1.0.0'
+
+    # These are your dependencies. Pwnagotchi will install them automatically
+    __dependencies__ = {
+        'apt': ['aircrack-ng'],
+        'pip': ['requests'],
+    }
+
+    # These assets will be copied/downloaded to the same dir as your plugin
+    __assets__ = ['https://example.com/data.zip', 'foobar.tar.gz']
+
+    # These are the available options of your plugin; No more separate config
+    __defaults__ = {
+        'enabled': False,
+        'option1': 'You can specify your options here',
+    }
 
     def __init__(self):
         logging.debug("example plugin created")

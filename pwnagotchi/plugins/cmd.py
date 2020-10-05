@@ -8,6 +8,7 @@ from fnmatch import fnmatch
 from pwnagotchi.utils import download_file, unzip, save_config, parse_version,\
     md5, pip_install, apt_install, analyze_plugin, has_internet, merge_config
 from pwnagotchi.plugins import default_path
+from pwnagotchi._version import __version__ as pwnagotchi_version
 
 
 SAVE_DIR = '/usr/local/share/pwnagotchi/availaible-plugins/'
@@ -176,6 +177,13 @@ def upgrade(args, config, pattern='*'):
                 continue
         else:
             continue
+
+        if '__min_pwnagotchi_version__' in available_plugin_data:
+            min_version = parse_version(available_plugin_data['__min_pwnagotchi_version__'])
+            pwn_version = parse_version(pwnagotchi_version)
+            if pwn_version < min_version:
+                looging.info('Skip %s because it requires pwnagotchi version %s', plugin, min_version)
+                continue
 
         logging.info('Upgrade %s from %s to %s', plugin, '.'.join(installed_version), '.'.join(available_version))
 
@@ -358,6 +366,14 @@ def install(args, config):
         save_config(config, args.user_config)
 
     plugin_info = analyze_plugin(available[plugin_name])
+
+    if '__min_pwnagotchi_version__' in plugin_info:
+        min_version = parse_version(plugin_info['__min_pwnagotchi_version__'])
+        pwn_version = parse_version(pwnagotchi_version)
+        if pwn_version < min_version:
+            looging.error("Can't install %s because it requires pwnagotchi version %s", plugin_name, min_version)
+            return 1
+
     if '__dependencies__' in plugin_info:
         deps = plugin_info['__dependencies__']
         if 'pip' in deps:
