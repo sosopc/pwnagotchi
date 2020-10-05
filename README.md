@@ -1,3 +1,6 @@
-# Pwnagotchi
+# how is this fork different?
 
-meh
+- added dark theme
+- advanced plugin parsing
+- removed peer/inbox functionality
+- bug fixes
