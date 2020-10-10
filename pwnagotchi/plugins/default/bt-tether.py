@@ -6,8 +6,8 @@ from threading import Lock
 
 import dbus
 
-import pwnagotchi.plugins as plugins
-import pwnagotchi.ui.fonts as fonts
+from pwnagotchi import plugins
+from pwnagotchi.ui import fonts
 from pwnagotchi.ui.components import LabeledValue
 from pwnagotchi.ui.view import BLACK
 from pwnagotchi.utils import StatusFile

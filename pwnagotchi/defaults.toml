@@ -19,6 +19,7 @@ main.whitelist = [
 main.filter = ""
 
 main.log.path = "/var/log/pwnagotchi.log"
+main.log.color = true
 main.log.rotation.enabled = true
 main.log.rotation.size = "10M"
 

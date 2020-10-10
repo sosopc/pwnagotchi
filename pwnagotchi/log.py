@@ -10,6 +10,7 @@ from datetime import datetime
 
 from pwnagotchi.voice import Voice
 from file_read_backwards import FileReadBackwards
+from rich.logging import RichHandler
 
 LAST_SESSION_FILE = '/root/.pwnagotchi-last-session'
 
@@ -206,7 +207,11 @@ def setup_logging(args, config):
         file_handler.setFormatter(formatter)
         root.addHandler(file_handler)
 
-    console_handler = logging.StreamHandler()
+    if cfg['color']:
+        console_handler = RichHandler(rich_tracebacks=True)
+    else:
+        console_handler = logging.StreamHandler()
+
     console_handler.setFormatter(formatter)
     root.addHandler(console_handler)
 
