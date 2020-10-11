@@ -14,18 +14,20 @@ from pwnagotchi.automata import Automata
 from pwnagotchi.log import LastSession
 from pwnagotchi.bettercap import Client
 from pwnagotchi.ai.train import AsyncTrainer
+from pwnagotchi.friends.advertiser import FriendsAdvertiser
 
 RECOVERY_DATA_FILE = '/root/.pwnagotchi-recovery'
 
 
-class Agent(Client, Automata, AsyncTrainer):
-    def __init__(self, view, config):
+class Agent(Client, Automata, FriendsAdvertiser, AsyncTrainer):
+    def __init__(self, view, config, keypair):
         Client.__init__(self, config['bettercap']['hostname'],
                         config['bettercap']['scheme'],
                         config['bettercap']['port'],
                         config['bettercap']['username'],
                         config['bettercap']['password'])
         Automata.__init__(self, config, view)
+        FriendsAdvertiser.__init__(self, config, view, keypair)
         AsyncTrainer.__init__(self, config)
 
         self._started_at = time.time()
