@@ -54,6 +54,8 @@ class Agent(Client, Automata, FriendsAdvertiser, AsyncTrainer):
         for _, plugin in plugins.loaded.items():
             logging.debug("plugin '%s' v%s", plugin.__class__.__name__, plugin.__version__)
 
+        self.start_peer_listener()
+
     def config(self):
         return self._config
 
