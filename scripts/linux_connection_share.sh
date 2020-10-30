@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 
 # name of the ethernet gadget interface on the host
-USB_IFACE=${1:-enp0s20f0u1}
+USB_IFACE="$(find /sys/class/net -name "enp*" -printf "%f\n" | tail -1)"
 USB_IFACE_IP=10.0.0.1
 USB_IFACE_NET=10.0.0.0/24
 # host interface to use for upstream connection
-UPSTREAM_IFACE=${2:-enxe4b97aa99867}
+UPSTREAM_IFACE=$(ip r g 8.8.8.8 | head -n1 | cut -d" " -f5)
 
 ip addr add "$USB_IFACE_IP/24" dev "$USB_IFACE"
 ip link set "$USB_IFACE" up
