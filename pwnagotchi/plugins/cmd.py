@@ -230,23 +230,24 @@ def list_plugins(args, config, pattern='*'):
     """
     Lists the available and installed plugins
     """
-    found = False
+    from rich.console import Console
+    from rich.table import Table
 
-    line = "|{name:^{width}}|{version:^9}|{enabled:^10}|{status:^15}|"
+    console = Console()
+
+    table = Table(show_header=True, header_style="bold")
+
+    table.add_column("Name")
+    table.add_column("Version")
+    table.add_column("Enabled")
+    table.add_column("Status")
+
+    found = False
 
     available = _get_available()
     installed = _get_installed(config)
 
-    available_and_installed = set(list(available.keys()) + list(installed.keys()))
     available_not_installed = set(available.keys()) - set(installed.keys())
-
-    max_len = max(map(len, available_and_installed))
-    header = line.format(name='Plugin', width=max_len, version='Version', enabled='Active', status='Status')
-    line_length = max(max_len, len('Plugin')) + len(header) - len('Plugin') - 12
-
-    print('-' * line_length)
-    print(header)
-    print('-' * line_length)
 
     # only installed (maybe update available?)
     for plugin, filename in sorted(installed.items()):
@@ -270,7 +271,7 @@ def list_plugins(args, config, pattern='*'):
                   config['main']['plugins'][plugin]['enabled'] \
                   else 'disabled'
 
-        print(line.format(name=plugin, width=max_len, version='.'.join(installed_version), enabled=enabled, status=status))
+        table.add_row(plugin, '.'.join(installed_version), enabled, status)
 
     for plugin in sorted(available_not_installed):
         if not fnmatch(plugin, pattern):
@@ -278,13 +279,14 @@ def list_plugins(args, config, pattern='*'):
         found = True
         available_plugin_info = analyze_plugin(available[plugin])
         available_version = available_plugin_info['__version__']
-        print(line.format(name=plugin, width=max_len, version=available_version, enabled='-', status='available'))
-
-    print('-' * line_length)
+        table.add_row(plugin, available_version, '-', 'available')
 
     if not found:
         logging.info('Maybe try: pwnagotchi plugins update')
         return 1
+
+    console.print(table)
+
     return 0
 
 
