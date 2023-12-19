@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+#---DrSam ---install pwnagotchi on rpi4
+
 # install pwnagotchi on rpi4
 
 WIFI_DEV="wlan1"
