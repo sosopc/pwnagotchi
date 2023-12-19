@@ -1,5 +1,7 @@
 # Pwnagotchi
 
+https://pwnagotchi.ai/installation/
+
 <p align="center">
     <a href="https://github.com/dadav/pwnagotchi/releases/latest"><img alt="Release" src="https://img.shields.io/github/release/dadav/pwnagotchi.svg?style=flat-square"></a>
     <a href="https://github.com/dadav/pwnagotchi/blob/master/LICENSE.md"><img alt="Software License" src="https://img.shields.io/badge/license-GPL3-brightgreen.svg?style=flat-square"></a>
